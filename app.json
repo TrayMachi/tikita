@@ -33,6 +33,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "35a9d9a6-78ea-4d76-a576-9d578ee82f03"
+      }
+    },
+    "owner": "tristanagra"
   }
 }
