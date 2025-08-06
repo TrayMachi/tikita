@@ -185,7 +185,7 @@ export default function RegisterScreen() {
               </Text>
               <Text className="text-lg text-typography-500 dark:text-typography-400 text-center max-w-sm leading-relaxed">
                 Sudah punya akun?{" "}
-                <Link href="/auth/register" asChild>
+                <Link href="/auth/login" asChild>
                   <TouchableOpacity className="ml-1">
                     <Text className="font-bold text-primary-400">Masuk</Text>
                   </TouchableOpacity>

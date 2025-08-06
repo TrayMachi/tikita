@@ -1,31 +1,20 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import React from "react";
+import { ScrollView } from "react-native";
+import { Text, View } from "@/components/Themed";
+import FontDemo from "@/components/FontDemo";
 
 export default function TabOneScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+    <ScrollView className="flex-1 bg-background-0 dark:bg-background-950">
+      <View className="flex-1 items-center justify-center px-4 py-8">
+        <Text className="text-3xl font-heading text-typography-900 dark:text-typography-50 mb-2">
+          Welcome to Tikita
+        </Text>
+        <Text className="text-base font-body text-typography-700 dark:text-typography-200 text-center mb-8">
+          Your app is now configured with Inter and Poppins fonts
+        </Text>
+        <FontDemo title="Font Configuration Demo" />
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
