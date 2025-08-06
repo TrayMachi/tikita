@@ -181,14 +181,16 @@ export default function RegisterScreen() {
                 />
               </Animated.View>
 
-              <Text className="text-4xl font-black text-typography-900 dark:text-typography-50 mb-3 tracking-tight">
+              <Text className="text-4xl font-poppins-semibold text-[#464646] mb-3">
                 Daftar Sekarang
               </Text>
-              <Text className="text-lg text-typography-500 dark:text-typography-400 text-center max-w-sm leading-relaxed">
+              <Text className="text-lg text-[#A1A1A1] text-center max-w-sm">
                 Sudah punya akun?{" "}
                 <Link href="/auth/login" asChild>
                   <TouchableOpacity className="ml-1">
-                    <Text className="font-bold text-primary-400">Masuk</Text>
+                    <Text className="text-primary-400">
+                      Masuk
+                    </Text>
                   </TouchableOpacity>
                 </Link>
               </Text>
@@ -247,21 +249,21 @@ export default function RegisterScreen() {
               onPress={handleRegister}
               disabled={isLoading}
               size="xl"
-              className={`mb-6 rounded-xl shadow-lg ${
+              className={`mb-6 ${
                 isLoading
                   ? "bg-primary-300 dark:bg-primary-700"
                   : "bg-primary-500 dark:bg-primary-600 active:bg-primary-600"
               }`}
             >
-              <ButtonText className="text-white font-bold text-lg">
+              <ButtonText>
                 {isLoading ? "Membuat akun..." : "Daftar"}
               </ButtonText>
             </Button>
 
             {/* Terms and Privacy */}
-            <Text className="text-xs text-typography-400 dark:text-typography-500 text-center leading-relaxed">
+            <Text className="text-base text-[#A1A1A1] text-center">
               Dengan mendaftar, anda setuju dengan{"\n"}
-              <Text className="text-primary-600 dark:text-primary-400 font-semibold">
+              <Text className="text-primary-600 dark:text-primary-400">
                 Syarat dan Ketentuan
               </Text>{" "}
             </Text>

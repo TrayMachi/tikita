@@ -18,7 +18,7 @@ export const FormInput: React.FC<FormInputProps> = function FormInput({
 }) {
   return (
     <View className={className}>
-      <Text className="text-sm font-semibold text-typography-700 dark:text-typography-300 mb-2 ml-1">
+      <Text className="text-sm font-semibold text-[#5A5A5A] mb-2 ml-1">
         {label}
       </Text>
       <Input

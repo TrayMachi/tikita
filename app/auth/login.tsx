@@ -140,14 +140,14 @@ export default function LoginScreen() {
                 />
               </Animated.View>
 
-              <Text className="text-4xl font-poppins font-semibold text-typography-900 dark:text-typography-50 mb-3 tracking-tight">
+              <Text className="text-4xl font-poppins-semibold text-[#464646] mb-3">
                 Masuk Kembali
               </Text>
-              <Text className="text-lg text-typography-500 dark:text-typography-400 text-center max-w-sm leading-relaxed">
+              <Text className="text-lg text-[#A1A1A1] text-center max-w-sm">
                 Belom punya akun?{" "}
                 <Link href="/auth/register" asChild>
                   <TouchableOpacity className="ml-1">
-                    <Text className="font-bold text-primary-400">
+                    <Text className="text-primary-400">
                       Daftar
                     </Text>
                   </TouchableOpacity>
@@ -186,25 +186,25 @@ export default function LoginScreen() {
               onPress={handleLogin}
               disabled={isLoading}
               size="xl"
-              className={`mb-8 rounded-xl shadow-lg ${
+              className={`mb-8 ${
                 isLoading
                   ? "bg-primary-300 dark:bg-primary-700"
                   : "bg-primary-500 dark:bg-primary-600 active:bg-primary-600"
               }`}
             >
-              <ButtonText className="text-white font-bold text-lg">
+              <ButtonText>
                 {isLoading ? "Memasuki..." : "Masuk"}
               </ButtonText>
             </Button>
 
             {/* Sign Up Link */}
             <View className="flex-row justify-center items-center">
-              <Text className="text-typography-500 dark:text-typography-400 text-base">
+              <Text className="text-[#A1A1A1] text-base">
                 Butuh bantuan?{" "}
               </Text>
               <Link href="/auth/register" asChild>
                 <TouchableOpacity className="ml-1">
-                  <Text className="text-primary-600 dark:text-primary-400 font-bold text-base">
+                  <Text className="text-primary-600 dark:text-primary-400 text-base">
                     Hubungi Tikita Care
                   </Text>
                 </TouchableOpacity>
