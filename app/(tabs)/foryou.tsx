@@ -1,19 +1,17 @@
 import React from "react";
 import { ScrollView } from "react-native";
 import { Text, View } from "@/components/Themed";
-import FontTestDemo from "@/components/FontTestDemo";
 
-export default function HomeScreen() {
+export default function ForYouScreen() {
   return (
     <ScrollView className="flex-1 bg-background-0 dark:bg-background-950">
       <View className="flex-1 items-center justify-center px-4 py-8">
         <Text className="text-3xl font-heading text-typography-900 dark:text-typography-50 mb-2">
-          Welcome to Tikita
+          For You
         </Text>
         <Text className="text-base font-body text-typography-700 dark:text-typography-200 text-center mb-8">
-          Your ticket marketplace is ready to go
+          Discover personalized content and recommendations
         </Text>
-        <FontTestDemo />
       </View>
     </ScrollView>
   );
