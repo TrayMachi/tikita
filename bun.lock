@@ -5,7 +5,10 @@
       "name": "tikita",
       "dependencies": {
         "@expo/vector-icons": "^14.1.0",
+        "@gluestack-ui/button": "^1.0.14",
         "@gluestack-ui/icon": "^0.1.27",
+        "@gluestack-ui/image": "^0.1.17",
+        "@gluestack-ui/input": "^0.1.38",
         "@gluestack-ui/nativewind-utils": "^1.0.26",
         "@gluestack-ui/overlay": "^0.1.22",
         "@gluestack-ui/toast": "^1.0.9",
@@ -13,8 +16,10 @@
         "@react-navigation/native": "^7.1.6",
         "@supabase/supabase-js": "^2.53.0",
         "babel-plugin-module-resolver": "^5.0.2",
+        "clsx": "^2.1.1",
         "expo": "~53.0.20",
         "expo-font": "~13.3.2",
+        "expo-image": "^2.4.0",
         "expo-linking": "~7.1.7",
         "expo-router": "~5.1.4",
         "expo-splash-screen": "~0.30.10",
@@ -32,6 +37,7 @@
         "react-native-svg": "15.11.2",
         "react-native-url-polyfill": "^2.0.0",
         "react-native-web": "~0.20.0",
+        "tailwind-merge": "^3.3.1",
         "tailwindcss": "3.4.17",
       },
       "devDependencies": {
@@ -300,9 +306,17 @@
 
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.6.1", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg=="],
 
+    "@gluestack-ui/button": ["@gluestack-ui/button@1.0.14", "", { "dependencies": { "@gluestack-ui/utils": "0.1.15", "@react-native-aria/focus": "^0.2.9", "@react-native-aria/interactions": "0.2.16" }, "peerDependencies": { "react": ">=16", "react-dom": ">=16" } }, "sha512-Rqv5PY18jzeVACBwsVxXlyDbHjBiSXGVqY29VO6KHZGMMokCPW6MXYXT8ZpriLxMc1DRkgTtpTVYZCJBFaYTbg=="],
+
+    "@gluestack-ui/form-control": ["@gluestack-ui/form-control@0.1.19", "", { "dependencies": { "@gluestack-ui/utils": "^0.1.14", "@react-native-aria/focus": "^0.2.9" }, "peerDependencies": { "react": ">=16", "react-dom": ">=16" } }, "sha512-6YbPbi/RZrXc5DyVPbxPV17FYaBoEl1yAdSwut8iE6n+yQekjluINrh2q5ZPWF2SGmyo7VSNcL85yeU5I97xHg=="],
+
     "@gluestack-ui/hooks": ["@gluestack-ui/hooks@0.1.13", "", { "peerDependencies": { "react": ">=16", "react-dom": ">=16" } }, "sha512-2x5EGcAuvdWFoOaqBRJsilR9Nx07tDvuAr3MI5SOmDdn7Bjzi+3CVAZwwDE2nGwAL3ldJvbAlzVkiNCw4TsSeA=="],
 
     "@gluestack-ui/icon": ["@gluestack-ui/icon@0.1.27", "", { "dependencies": { "@gluestack-ui/provider": "^0.1.19", "@gluestack-ui/utils": "^0.1.14", "@react-native-aria/focus": "^0.2.9" }, "peerDependencies": { "react": ">=16", "react-dom": ">=16" } }, "sha512-mIsfgdVUihtRORoeDxn3kMFph5XOXK+Scnj1JXLufbt7h9kbfaZLGhYDc9cp2zpPc1Xki9SC1yXYfw8y4FAAdA=="],
+
+    "@gluestack-ui/image": ["@gluestack-ui/image@0.1.17", "", { "dependencies": { "@gluestack-ui/utils": "^0.1.15", "@react-native-aria/focus": "^0.2.9", "@react-native-aria/interactions": "0.2.16" }, "peerDependencies": { "react": ">=16", "react-dom": ">=16" } }, "sha512-hcyTVBUw55bSjEpyynIZJVm3Ff6lcjKXFT55f890oy2PNGyFdsKr6V+t/jy5n/2fwbv1eR2KU0uDDiI2vmBh+A=="],
+
+    "@gluestack-ui/input": ["@gluestack-ui/input@0.1.38", "", { "dependencies": { "@gluestack-ui/form-control": "^0.1.19", "@gluestack-ui/utils": "^0.1.15", "@react-native-aria/focus": "^0.2.9", "@react-native-aria/interactions": "0.2.16" }, "peerDependencies": { "react": ">=16", "react-dom": ">=16" } }, "sha512-NzwDOXkkMYzBQ0h7UnhKA2h54/qlxDxMFGXykkmYOl7mc7QJc1aJaveo4yMHtpYvcQG17xLyD+Z+5CQYA76nvw=="],
 
     "@gluestack-ui/nativewind-utils": ["@gluestack-ui/nativewind-utils@1.0.26", "", { "dependencies": { "find-yarn-workspace-root": "^2.0.0", "patch-package": "8.0.0", "tailwind-variants": "0.1.20" }, "peerDependencies": { "nativewind": ">=4.0", "react": ">=16" } }, "sha512-Ul/nHkYOKMH5CTmDUndM826GKYqWI6jFaz7/v7AgOo9dFuokOYm6Sd3pcJHqzPghwODRXV9L4nQgxa7dJX96pg=="],
 
@@ -917,6 +931,8 @@
     "expo-file-system": ["expo-file-system@18.1.11", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-HJw/m0nVOKeqeRjPjGdvm+zBi5/NxcdPf8M8P3G2JFvH5Z8vBWqVDic2O58jnT1OFEy0XXzoH9UqFu7cHg9DTQ=="],
 
     "expo-font": ["expo-font@13.3.2", "", { "dependencies": { "fontfaceobserver": "^2.1.0" }, "peerDependencies": { "expo": "*", "react": "*" } }, "sha512-wUlMdpqURmQ/CNKK/+BIHkDA5nGjMqNlYmW0pJFXY/KE/OG80Qcavdu2sHsL4efAIiNGvYdBS10WztuQYU4X0A=="],
+
+    "expo-image": ["expo-image@2.4.0", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*", "react-native-web": "*" }, "optionalPeers": ["react-native-web"] }, "sha512-TQ/LvrtJ9JBr+Tf198CAqflxcvdhuj7P24n0LQ1jHaWIVA7Z+zYKbYHnSMPSDMul/y0U46Z5bFLbiZiSidgcNw=="],
 
     "expo-keep-awake": ["expo-keep-awake@14.1.4", "", { "peerDependencies": { "expo": "*", "react": "*" } }, "sha512-wU9qOnosy4+U4z/o4h8W9PjPvcFMfZXrlUoKTMBW7F4pLqhkkP/5G4EviPZixv4XWFMjn1ExQ5rV6BX8GwJsWA=="],
 
@@ -1680,7 +1696,7 @@
 
     "symbol-tree": ["symbol-tree@3.2.4", "", {}, "sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw=="],
 
-    "tailwind-merge": ["tailwind-merge@1.14.0", "", {}, "sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ=="],
+    "tailwind-merge": ["tailwind-merge@3.3.1", "", {}, "sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g=="],
 
     "tailwind-variants": ["tailwind-variants@0.1.20", "", { "dependencies": { "tailwind-merge": "^1.14.0" }, "peerDependencies": { "tailwindcss": "*" } }, "sha512-AMh7x313t/V+eTySKB0Dal08RHY7ggYK0MSn/ad8wKWOrDUIzyiWNayRUm2PIJ4VRkvRnfNuyRuKbLV3EN+ewQ=="],
 
@@ -2099,6 +2115,8 @@
     "sucrase/commander": ["commander@4.1.1", "", {}, "sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA=="],
 
     "sucrase/glob": ["glob@10.4.5", "", { "dependencies": { "foreground-child": "^3.1.0", "jackspeak": "^3.1.2", "minimatch": "^9.0.4", "minipass": "^7.1.2", "package-json-from-dist": "^1.0.0", "path-scurry": "^1.11.1" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg=="],
+
+    "tailwind-variants/tailwind-merge": ["tailwind-merge@1.14.0", "", {}, "sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ=="],
 
     "tar/minipass": ["minipass@7.1.2", "", {}, "sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw=="],
 
