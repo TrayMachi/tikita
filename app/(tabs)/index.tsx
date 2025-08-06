@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView } from "react-native";
 import { Text, View } from "@/components/Themed";
-import FontDemo from "@/components/FontDemo";
+import FontTestDemo from "@/components/FontTestDemo";
 
 export default function TabOneScreen() {
   return (
@@ -13,7 +13,7 @@ export default function TabOneScreen() {
         <Text className="text-base font-body text-typography-700 dark:text-typography-200 text-center mb-8">
           Your app is now configured with Inter and Poppins fonts
         </Text>
-        <FontDemo title="Font Configuration Demo" />
+        <FontTestDemo />
       </View>
     </ScrollView>
   );

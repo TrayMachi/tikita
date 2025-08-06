@@ -171,19 +171,18 @@ module.exports = {
       },
       fontFamily: {
         // Default font families
-        heading: ["Inter-SemiBold", "system-ui", "sans-serif"],
-        body: ["Inter-Regular", "system-ui", "sans-serif"],
-        mono: ["SpaceMono", "monospace"],
+        heading: ["Inter_600SemiBold", "system-ui", "sans-serif"],
+        body: ["Inter_400Regular", "system-ui", "sans-serif"],
         // Inter font family
-        inter: ["Inter-Regular"],
-        "inter-medium": ["Inter-Medium"],
-        "inter-semibold": ["Inter-SemiBold"],
-        "inter-bold": ["Inter-Bold"],
+        inter: ["Inter_400Regular"],
+        "inter-medium": ["Inter_500Medium"],
+        "inter-semibold": ["Inter_600SemiBold"],
+        "inter-bold": ["Inter_700Bold"],
         // Poppins font family
-        poppins: ["Poppins-Regular"],
-        "poppins-medium": ["Poppins-Medium"],
-        "poppins-semibold": ["Poppins-SemiBold"],
-        "poppins-bold": ["Poppins-Bold"],
+        poppins: ["Poppins_400Regular"],
+        "poppins-medium": ["Poppins_500Medium"],
+        "poppins-semibold": ["Poppins_600SemiBold"],
+        "poppins-bold": ["Poppins_700Bold"],
         // Legacy font
         roboto: ["Roboto", "sans-serif"],
       },

@@ -150,7 +150,7 @@ export const config = {
     '--color-background-info': '235 248 254',
 
     /* Focus Ring Indicator  */
-    '--color-indicator-primary': '55 55 55',
+    '--color-indicator-primary': '89 148 251',
     '--color-indicator-info': '83 153 236',
     '--color-indicator-error': '185 28 28',
   }),
@@ -302,7 +302,7 @@ export const config = {
     '--color-background-info': '26 40 46',
 
     /* Focus Ring Indicator  */
-    '--color-indicator-primary': '247 247 247',
+    '--color-indicator-primary': '89 148 251',
     '--color-indicator-info': '161 199 245',
     '--color-indicator-error': '232 70 69',
   }),

@@ -4,22 +4,22 @@
  */
 
 export const FontFamilies = {
-  // Inter fonts (default)
+  // Inter fonts (default) - Using Google Fonts naming
   inter: {
-    regular: "Inter-Regular",
-    medium: "Inter-Medium",
-    semibold: "Inter-SemiBold",
-    bold: "Inter-Bold",
+    regular: "Inter_400Regular",
+    medium: "Inter_500Medium",
+    semibold: "Inter_600SemiBold",
+    bold: "Inter_700Bold",
   },
-  // Poppins fonts (alternative)
+  // Poppins fonts (alternative) - Using Google Fonts naming
   poppins: {
-    regular: "Poppins-Regular",
-    medium: "Poppins-Medium",
-    semibold: "Poppins-SemiBold",
-    bold: "Poppins-Bold",
+    regular: "Poppins_400Regular",
+    medium: "Poppins_500Medium",
+    semibold: "Poppins_600SemiBold",
+    bold: "Poppins_700Bold",
   },
   // System fonts
-  mono: "SpaceMono",
+  mono: "SpaceMono_400Regular",
 } as const;
 
 export const DefaultFontFamily = FontFamilies.inter.regular;

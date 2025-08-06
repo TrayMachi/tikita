@@ -136,10 +136,11 @@ export default function LoginScreen() {
                 <Image
                   source={require("@/assets/images/LogoTikita.webp")}
                   className="w-[111px] h-[100px]"
+                  alt="logo"
                 />
               </Animated.View>
 
-              <Text className="text-4xl font-black text-typography-900 dark:text-typography-50 mb-3 tracking-tight">
+              <Text className="text-4xl font-poppins font-semibold text-typography-900 dark:text-typography-50 mb-3 tracking-tight">
                 Masuk Kembali
               </Text>
               <Text className="text-lg text-typography-500 dark:text-typography-400 text-center max-w-sm leading-relaxed">

@@ -27,7 +27,7 @@ export const FormInput: React.FC<FormInputProps> = function FormInput({
         className={`border-2 rounded-xl ${
           error
             ? "border-error-500 bg-error-50 dark:bg-error-950"
-            : "border-outline-200 bg-background-50 dark:bg-background-900 focus:border-primary-500"
+            : "border-primary-200 bg-background-50 dark:bg-background-900 focus:border-primary-500"
         }`}
       >
         <InputField

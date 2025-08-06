@@ -177,6 +177,7 @@ export default function RegisterScreen() {
                 <Image
                   source={require("@/assets/images/LogoTikita.webp")}
                   className="w-[111px] h-[100px]"
+                  alt="logo"
                 />
               </Animated.View>
 
