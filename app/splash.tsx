@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, Animated, Easing, StatusBar } from "react-native";
+import { View, Text, Animated, Easing, StatusBar, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { Stack } from "expo-router";
 import { supabase } from "@/utils/supabase";
@@ -134,43 +134,31 @@ export default function SplashScreen() {
           }}
           className="items-center"
         >
-          {/* Enhanced Logo Container */}
-          <Animated.View
-            style={{
-              transform: [{ rotate: logoRotation }],
-            }}
-            className="mb-8"
+          <View
+            className="mb-4"
           >
-            <View className="w-36 h-36 bg-white/95 rounded-[32px] justify-center items-center shadow-2xl relative">
-              {/* Inner glow effect */}
-              <View className="absolute inset-2 bg-primary-50 rounded-[24px]" />
-              <Text className="text-6xl font-black text-primary-600 z-10">
-                T
-              </Text>
-              {/* Subtle highlight */}
-              <View className="absolute top-4 left-4 w-8 h-8 bg-white/40 rounded-full blur-sm" />
-            </View>
-          </Animated.View>
+            <Image
+              source={require("@/assets/images/LogoTikita.webp")}
+              className="w-[151px] h-[136px]"
+              alt="logo"
+            />
+          </View>
 
-          {/* Enhanced Company Title */}
           <Animated.View
             style={{
               opacity: fadeAnim,
               transform: [{ translateY: slideUpAnim }],
             }}
-            className="items-center mb-20"
+            className="items-center mb-4"
           >
-            <Text className="text-5xl font-black text-white mb-3 text-center tracking-tight">
-              Tikita
+            <Text className="text-lg text-[#FE8E75] text-center max-w-xs font-poppins-semibold">
+              Beli Tiket Second{" "}
+              <Text className="text-[#5994FB]">Anti Was-Was!</Text>
             </Text>
-            <Text className="text-xl text-primary-100/90 text-center max-w-xs font-medium tracking-wide">
-              Your Digital Solution Partner
-            </Text>
-            <View className="w-16 h-1 bg-white/40 rounded-full mt-4" />
           </Animated.View>
 
           {/* Enhanced Loading Dots */}
-          <View className="flex-row items-center justify-center space-x-3">
+          <View className="flex-row items-center justify-center">
             <Animated.View
               style={{
                 opacity: dot1Anim,
@@ -189,7 +177,7 @@ export default function SplashScreen() {
                   },
                 ],
               }}
-              className="w-4 h-4 bg-white rounded-full shadow-lg"
+              className="w-4 h-4 bg-[#FFBB16] rounded-full shadow-lg"
             />
             <Animated.View
               style={{
@@ -209,7 +197,7 @@ export default function SplashScreen() {
                   },
                 ],
               }}
-              className="w-4 h-4 bg-white rounded-full shadow-lg"
+              className="w-4 h-4 bg-[#FE9274] rounded-full shadow-lg mx-6"
             />
             <Animated.View
               style={{
@@ -229,19 +217,9 @@ export default function SplashScreen() {
                   },
                 ],
               }}
-              className="w-4 h-4 bg-white rounded-full shadow-lg"
+              className="w-4 h-4 bg-[#FE807D] rounded-full shadow-lg"
             />
           </View>
-
-          {/* Loading text */}
-          <Animated.Text
-            style={{
-              opacity: fadeAnim,
-            }}
-            className="text-white/70 text-sm font-medium mt-6 tracking-widest"
-          >
-            LOADING
-          </Animated.Text>
         </Animated.View>
       </View>
     </>
