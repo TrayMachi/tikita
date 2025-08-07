@@ -108,7 +108,7 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
-      await signUp(email.trim(), password, name.trim());
+      await signUp(email.trim(), password, name.trim(), name.trim());
       Alert.alert(
         "Registration Successful",
         "Please check your email to confirm your account before signing in.",
@@ -188,9 +188,7 @@ export default function RegisterScreen() {
                 Sudah punya akun?{" "}
                 <Link href="/auth/login" asChild>
                   <TouchableOpacity className="ml-1">
-                    <Text className="text-primary-400">
-                      Masuk
-                    </Text>
+                    <Text className="text-primary-400">Masuk</Text>
                   </TouchableOpacity>
                 </Link>
               </Text>
