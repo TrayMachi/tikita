@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, Pressable, RefreshControl } from "react-native";
 import { View, Text } from "@/components/Themed";
-import { Button, ButtonText } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import FontAwesome from "@expo/vector-icons/FontAwesome";

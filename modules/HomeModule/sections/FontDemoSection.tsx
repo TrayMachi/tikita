@@ -1,11 +1,8 @@
 import React from "react";
-import { View, Text } from "react-native";
 import { FontFamilies } from "@/constants/Fonts";
+import { View, Text } from "@/components/Themed";
 
-/**
- * Simple font test component to verify Google Fonts are working
- */
-export default function FontTestDemo() {
+export default function FontDemoSection() {
   return (
     <View className="p-4 space-y-4">
       <Text className="text-2xl font-heading text-typography-900 dark:text-typography-50">
