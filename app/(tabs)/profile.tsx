@@ -2,28 +2,40 @@ import React from "react";
 import { ScrollView, Pressable } from "react-native";
 import { Text, View } from "@/components/Themed";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Image } from "@/components/ui/image";
+import { Badge, BadgeText } from "@/components/ui/badge";
+import { ProgressFilledTrack } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
+import { Box } from "@/components/ui/box";
+import { Button, ButtonText } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
+  const { signOut } = useAuth();
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <View className="bg-white dark:bg-gray-800 pt-4 pb-6">
+      <View className="bg-white dark:bg-gray-800 pt-4">
         <Text className="text-xl font-semibold text-center text-gray-900 dark:text-white mb-6">
           Profile
         </Text>
 
         {/* Profile Avatar and Info */}
         <View className="items-center">
-          <View className="relative mb-4">
-            <View className="w-24 h-24 bg-blue-400 rounded-full items-center justify-center">
-              <View className="w-16 h-16 bg-yellow-400 rounded-full items-center justify-center">
-                <FontAwesome name="user" size={32} color="#8B4513" />
-              </View>
-            </View>
+          <View className="relative">
+            <Image
+              source={require("@/assets/images/Profile.png")}
+              className="w-[136px] h-[136px] rounded-full"
+              alt="logo"
+            />
+
             {/* Badge */}
-            <View className="absolute -top-1 -right-1 w-8 h-8 bg-white rounded-full items-center justify-center border-2 border-blue-400">
-              <FontAwesome name="star" size={16} color="#FFD700" />
-            </View>
+            <Image
+              source={require("@/assets/images/SilvBadge.webp")}
+              className="w-[75px] h-[65px] absolute top-4 right-1"
+              alt="logo"
+            />
           </View>
 
           <View className="flex-row items-center mb-2">
@@ -33,9 +45,9 @@ export default function ProfileScreen() {
             <FontAwesome name="pencil" size={16} color="#6B7280" />
           </View>
 
-          <View className="bg-gray-400 px-3 py-1 rounded-full">
-            <Text className="text-white text-sm font-medium">Silver</Text>
-          </View>
+          <Badge size="md" variant="solid" action="muted">
+            <BadgeText>Silver</BadgeText>
+          </Badge>
         </View>
       </View>
 
@@ -45,13 +57,11 @@ export default function ProfileScreen() {
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             Level Progress
           </Text>
-          <View className="mb-2">
-            <View className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <View className="h-full w-1/3 bg-yellow-500 rounded-full" />
-            </View>
-          </View>
+          <Progress value={40} size="md" orientation="horizontal">
+            <ProgressFilledTrack className="bg-yellow-500" />
+          </Progress>
           <View className="flex-row justify-between">
-            <Text className="text-sm text-yellow-600 font-medium">33%</Text>
+            <Text className="text-sm text-yellow-600 font-medium">39%</Text>
             <Text className="text-sm text-gray-600 dark:text-gray-400">
               Gold
             </Text>
@@ -63,17 +73,17 @@ export default function ProfileScreen() {
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             Your <Text className="text-gray-500">Silver Member</Text> Benefit
           </Text>
-          <View className="flex-row space-x-3">
-            <View className="flex-1 bg-yellow-100 p-4 rounded-lg">
+          <View className="flex-row gap-x-3">
+            <Box className="flex-1 bg-yellow-100 p-4 rounded-lg">
               <Text className="text-2xl font-bold text-gray-900 mb-1">7%</Text>
               <Text className="text-sm text-gray-600">Silver Discount</Text>
-            </View>
-            <View className="flex-1 bg-blue-100 p-4 rounded-lg">
+            </Box>
+            <Box className="flex-1 bg-blue-100 p-4 rounded-lg">
               <Text className="text-lg font-bold text-gray-900 mb-1">
                 Rp101.900
               </Text>
               <Text className="text-sm text-gray-600">Total Saved</Text>
-            </View>
+            </Box>
           </View>
         </View>
 
@@ -136,12 +146,24 @@ export default function ProfileScreen() {
                 Tanya atau Buat Laporan pada CS kami!
               </Text>
             </View>
-            <Pressable className="bg-blue-500 px-4 py-2 rounded-lg">
-              <Text className="text-white font-medium text-sm">
-                Chat Customer Service
-              </Text>
-            </Pressable>
+            <Button size="md">
+              <ButtonText>Chat Customer Service</ButtonText>
+            </Button>
           </View>
+        </View>
+
+        <View className="flex-row justify-between items-center px-4">
+          <Button
+            onPress={async () => {
+              await signOut();
+              router.navigate("/auth/login");
+            }}
+            variant="solid"
+            action="negative"
+            size="md"
+          >
+            <ButtonText>Logout</ButtonText>
+          </Button>
         </View>
       </View>
     </ScrollView>
