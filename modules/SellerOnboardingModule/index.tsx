@@ -185,6 +185,7 @@ export default function SellerOnboardingModule() {
             fontSize: 18,
             fontWeight: "600",
           },
+          headerTitleAlign: "center",
           headerBackButtonDisplayMode: "minimal",
           headerRight: () => (
             <Pressable className="p-2 mr-2">
@@ -194,13 +195,6 @@ export default function SellerOnboardingModule() {
                 className="text-primary-500"
               />
             </Pressable>
-          ),
-          headerTitle: () => (
-            <Center>
-              <Text className="text-typography-900 dark:text-typography-50 font-poppins-semibold">
-                Pendaftaran Seller
-              </Text>
-            </Center>
           ),
         }}
       />
@@ -219,7 +213,7 @@ export default function SellerOnboardingModule() {
         <VStack className="flex-1">{renderStep()}</VStack>
 
         {/* Footer with Next button */}
-        <VStack className="px-6 py-4 border-t border-outline-200 dark:border-outline-700">
+        <VStack className="px-6 py-4 border-t shadow-lg border-outline-200 dark:border-outline-700">
           <Grid
             className="gap-2"
             _extra={{

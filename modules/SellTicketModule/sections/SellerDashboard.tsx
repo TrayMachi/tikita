@@ -129,10 +129,8 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                 className="bg-orange-500"
                 onPress={() => {
                   if (seller) {
-                    // TODO: Navigate to sell ticket page for sellers
-                    console.log("Navigate to sell ticket page");
+                    router.push("/seller/addticket");
                   } else {
-                    // Navigate to onboarding page for non-sellers
                     router.push("/seller/onboarding");
                   }
                 }}
@@ -176,46 +174,47 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                 className: "flex-1",
               }}
             >
-                <Image
-                  source={require("@/assets/images/bruno-mars.png")}
-                  className="w-full h-32 object-cover rounded-t-xl"
-                />
-                <VStack className="gap-2 p-4">
-                  <Text className="text-[#464646] font-poppins-bold text-lg mb-1">
-                    Bruno Mars Tour
+              <Image
+                source={require("@/assets/images/bruno-mars.png")}
+                className="w-full h-32 object-cover rounded-t-xl"
+                alt="bruno"
+              />
+              <VStack className="gap-2 p-4">
+                <Text className="text-[#464646] font-poppins-bold text-lg mb-1">
+                  Bruno Mars Tour
+                </Text>
+                <HStack className="text-white font-bold text-lg justify-between">
+                  <Text className="text-[#464646] text-sm">
+                    22 Agustus 2025
                   </Text>
-                  <HStack className="text-white font-bold text-lg justify-between">
-                    <Text className="text-[#464646] text-sm">
-                      22 Agustus 2025
-                    </Text>
-                    <Text className="text-[#464646] text-sm">2 Ticket</Text>
-                  </HStack>
-                  <Text className="text-[#464646] font-poppins-semibold text-sm pb-4">
-                    Rp550.000
-                  </Text>
-                </VStack>
+                  <Text className="text-[#464646] text-sm">2 Ticket</Text>
+                </HStack>
+                <Text className="text-[#464646] font-poppins-semibold text-sm pb-4">
+                  Rp550.000
+                </Text>
+              </VStack>
             </GridItem>
 
-            <GridItem _extra={{
-              className: ""
-            }}>
-            <Card
-              className="bg-blue-50 dark:bg-background-800 rounded-xl flex-1 min-h-[140px] items-center justify-center border-2 border-dashed border-primary-500"
-              onTouchEnd={() => {
-                if (seller) {
-                  // TODO: Navigate to add ticket page for sellers
-                  console.log("Navigate to add ticket page");
-                } else {
-                  // Navigate to onboarding page for non-sellers
-                  router.push("/seller/onboarding");
-                }
+            <GridItem
+              _extra={{
+                className: "",
               }}
             >
-              <VStack className="items-center" space="sm">
-                <Icon as={AddIcon} size="xl" className="text-primary-500" />
-                <Text className="text-[#464646] text-sm text-center">
-                  Tambah Tiket
-                </Text>
+              <Card
+                className="bg-blue-50 dark:bg-background-800 rounded-xl flex-1 min-h-[140px] items-center justify-center border-2 border-dashed border-primary-500"
+                onTouchEnd={() => {
+                  if (seller) {
+                    router.push("/seller/addticket");
+                  } else {
+                    router.push("/seller/onboarding");
+                  }
+                }}
+              >
+                <VStack className="items-center" space="sm">
+                  <Icon as={AddIcon} size="xl" className="text-primary-500" />
+                  <Text className="text-[#464646] text-sm text-center">
+                    Tambah Tiket
+                  </Text>
                 </VStack>
               </Card>
             </GridItem>
