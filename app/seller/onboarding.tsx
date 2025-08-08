@@ -1,4 +1,4 @@
-import SellerOnboardingModule from "@/modules/SellerOnboarding";
+import SellerOnboardingModule from "@/modules/SellerOnboardingModule";
 
 export default function SellerOnboardingPage() {
   return <SellerOnboardingModule />;
