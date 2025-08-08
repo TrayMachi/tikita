@@ -69,8 +69,11 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       <Button
         onPress={openPicker}
         variant="outline"
-        className={`justify-start h-10 ${
-          isInvalid ? "border-error-700" : "border-background-300"
+        size="lg"
+        className={`border rounded-lg ${
+          isInvalid
+            ? "border-error-500 bg-error-50 dark:bg-error-950"
+            : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
         }`}
       >
         <Text
