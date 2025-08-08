@@ -147,9 +147,7 @@ export default function LoginScreen() {
                 Belom punya akun?{" "}
                 <Link href="/auth/register" asChild>
                   <TouchableOpacity className="ml-1">
-                    <Text className="text-primary-400">
-                      Daftar
-                    </Text>
+                    <Text className="text-primary-400">Daftar</Text>
                   </TouchableOpacity>
                 </Link>
               </Text>
@@ -192,16 +190,12 @@ export default function LoginScreen() {
                   : "bg-primary-500 dark:bg-primary-600 active:bg-primary-600"
               }`}
             >
-              <ButtonText>
-                {isLoading ? "Memasuki..." : "Masuk"}
-              </ButtonText>
+              <ButtonText>{isLoading ? "Memasuki..." : "Masuk"}</ButtonText>
             </Button>
 
             {/* Sign Up Link */}
             <View className="flex-row justify-center items-center">
-              <Text className="text-[#A1A1A1] text-base">
-                Butuh bantuan?{" "}
-              </Text>
+              <Text className="text-[#A1A1A1] text-base">Butuh bantuan? </Text>
               <Link href="/auth/register" asChild>
                 <TouchableOpacity className="ml-1">
                   <Text className="text-primary-600 dark:text-primary-400 text-base">
