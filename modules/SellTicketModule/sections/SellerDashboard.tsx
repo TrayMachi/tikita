@@ -133,7 +133,7 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                     console.log("Navigate to sell ticket page");
                   } else {
                     // Navigate to onboarding page for non-sellers
-                    router.push("/seller-onboarding");
+                    router.push("/seller/onboarding");
                   }
                 }}
               >
@@ -150,7 +150,7 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
               Belum Punya Akun Seller?{" "}
               <Text
                 className="text-blue-500 font-semibold italic"
-                onPress={() => router.push("/seller-onboarding")}
+                onPress={() => router.push("/seller/onboarding")}
               >
                 Daftar Sebagai Seller
               </Text>
@@ -207,7 +207,7 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                   console.log("Navigate to add ticket page");
                 } else {
                   // Navigate to onboarding page for non-sellers
-                  router.push("/seller-onboarding");
+                  router.push("/seller/onboarding");
                 }
               }}
             >
