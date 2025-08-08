@@ -1,333 +1,227 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, Pressable, RefreshControl } from "react-native";
-import { View, Text } from "@/components/Themed";
+import React from "react";
+import { ScrollView, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Box } from "@/components/ui/box";
+import { Card } from "@/components/ui/card";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
+import { Button, ButtonText } from "@/components/ui/button";
 import { Badge, BadgeText } from "@/components/ui/badge";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import type { Seller } from "@/types/seller";
-import { getSellerDashboardData } from "@/services/sellerService";
-import { useAuth } from "@/contexts/AuthContext";
+import { Text } from "react-native";
+import { Center } from "@/components/ui/center";
+import { Icon, AddIcon } from "@/components/ui/icon";
+import { Image } from "@/components/ui/image";
+import { Grid, GridItem } from "@/components/ui/grid";
 
 interface SellerDashboardProps {
-  seller: Seller;
+  seller?: any; // Optional - null means user is not a seller yet
 }
 
 export default function SellerDashboard({ seller }: SellerDashboardProps) {
-  const { user } = useAuth();
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const loadDashboardData = async () => {
-    try {
-      const data = await getSellerDashboardData(seller.id);
-      setDashboardData(data);
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadDashboardData();
-    setRefreshing(false);
-  };
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <FontAwesome name="spinner" size={32} className="text-primary-500" />
-        <Text className="text-typography-600 dark:text-typography-300 mt-4">
-          Loading dashboard...
-        </Text>
-      </View>
-    );
-  }
-
+  const router = useRouter();
   return (
-    <ScrollView
-      className="flex-1 bg-background-0 dark:bg-background-950"
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View className="px-4 py-6 space-y-6">
-        {/* Header */}
-        <View className="space-y-4">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-2xl font-heading text-typography-900 dark:text-typography-50">
-                Seller Dashboard
+    <ScrollView className="flex-1 bg-white dark:bg-background-950">
+      <VStack className="px-4 py-6" space="lg">
+        {/* Header with Tikita Branding */}
+        <VStack space="md">
+          <VStack>
+            <Text className="text-2xl font-bold text-typography-900 dark:text-typography-50 mb-1">
+              Jual Tiketmu di <Text className="text-orange-500">ti</Text>
+              <Text className="text-blue-500">ki</Text>
+              <Text className="text-orange-500">ta</Text>
+            </Text>
+            <Text className="text-sm text-typography-600 dark:text-typography-300">
+              Kamu punya tiket yang batal dipakai?
+            </Text>
+            <Text className="text-sm text-typography-600 dark:text-typography-300">
+              Tikita bisa ubah tiketmu jadi cuan dan pastiin kamu{" "}
+              <Text className="text-primary-500">#TiketJadiUang!</Text>
+            </Text>
+          </VStack>
+        </VStack>
+
+        <VStack>
+          <Box className="bg-primary-500 px-4 py-2 rounded-t-xl">
+            <HStack className="items-center justify-between" space="sm">
+              <HStack className="items-center gap-2">
+                <View className="bg-red-600 w-2 h-2 rounded-full"></View>
+                <Text className="text-white font-poppins-medium text-lg">
+                  Hot Opportunity
+                </Text>
+              </HStack>
+              <HStack>
+                <Badge
+                  size="sm"
+                  variant="solid"
+                  action="info"
+                  className="rounded-full rounded-bl-none"
+                >
+                  <BadgeText className="text-xs">AI Recommendation</BadgeText>
+                </Badge>
+              </HStack>
+            </HStack>
+          </Box>
+          <Box className="bg-white rounded-b-xl border border-outline-200 shadow-lg">
+            {/* Event Details */}
+            <VStack className="p-4" space="md">
+              <Text className="text-xl font-poppins-medium text-[typography-900] dark:text-typography-50">
+                NIKI: Buzz World Tour Jakarta
               </Text>
               <Text className="text-sm text-typography-600 dark:text-typography-300">
-                Welcome back, {seller.nama}
+                Tiket ini memiliki permintaan tinggi dengan perkiraan hantutan,
+                Citra market berpotensi untuk dijual tiket yang tepat untuk
+                mendapat keuntungan maksimal.
               </Text>
-            </View>
 
-            <Badge
-              size="md"
-              variant="solid"
-              action={seller.isVerified ? "success" : "warning"}
+              {/* Statistics */}
+              <HStack space="md">
+                <Card className="flex-1 bg-blue-50 dark:bg-blue-900 p-3 rounded-lg items-center">
+                  <Text className="text-2xl font-bold text-blue-600 dark:text-blue-300">
+                    891
+                  </Text>
+                  <Text className="text-xs text-blue-600 dark:text-blue-300">
+                    Pencari
+                  </Text>
+                </Card>
+
+                <Card className="flex-1 bg-blue-50 dark:bg-blue-900 p-3 rounded-lg items-center">
+                  <Text className="text-2xl font-bold text-blue-600 dark:text-blue-300">
+                    &lt;10
+                  </Text>
+                  <Text className="text-xs text-blue-600 dark:text-blue-300">
+                    Seller
+                  </Text>
+                </Card>
+
+                <Card className="flex-1 bg-blue-50 dark:bg-blue-900 p-3 rounded-lg items-center">
+                  <Text className="text-2xl font-bold text-blue-600 dark:text-blue-300">
+                    85%
+                  </Text>
+                  <Text className="text-xs text-blue-600 dark:text-blue-300">
+                    Match Rate
+                  </Text>
+                </Card>
+              </HStack>
+
+              {/* Countdown Timer */}
+              <VStack className="items-center">
+                <Text className="text-sm text-typography-600 dark:text-typography-300 mb-2">
+                  Event Dimulai Dalam
+                </Text>
+                <HStack space="sm">
+                  <Card className="bg-blue-500 px-3 py-2 rounded-lg min-w-[40px] items-center">
+                    <Text className="text-white font-bold text-lg">96</Text>
+                    <Text className="text-white text-xs">Hari</Text>
+                  </Card>
+                  <Card className="bg-blue-500 px-3 py-2 rounded-lg min-w-[40px] items-center">
+                    <Text className="text-white font-bold text-lg">09</Text>
+                    <Text className="text-white text-xs">Jam</Text>
+                  </Card>
+                  <Card className="bg-blue-500 px-3 py-2 rounded-lg min-w-[40px] items-center">
+                    <Text className="text-white font-bold text-lg">15</Text>
+                    <Text className="text-white text-xs">Menit</Text>
+                  </Card>
+                </HStack>
+              </VStack>
+
+              {/* Sell Ticket Button */}
+              <Button
+                className="bg-orange-500"
+                onPress={() => {
+                  if (seller) {
+                    // TODO: Navigate to sell ticket page for sellers
+                    console.log("Navigate to sell ticket page");
+                  } else {
+                    // Navigate to onboarding page for non-sellers
+                    router.push("/seller-onboarding");
+                  }
+                }}
+              >
+                <ButtonText>Jual Tiket Sekarang</ButtonText>
+              </Button>
+            </VStack>
+          </Box>
+        </VStack>
+
+        {/* Additional Info - Show register prompt for non-sellers */}
+        {!seller && (
+          <Center>
+            <Text className="text-sm text-[#464646] dark:text-typography-300">
+              Belum Punya Akun Seller?{" "}
+              <Text
+                className="text-blue-500 font-semibold italic"
+                onPress={() => router.push("/seller-onboarding")}
+              >
+                Daftar Sebagai Seller
+              </Text>
+            </Text>
+          </Center>
+        )}
+
+        {/* Ticket Anda Section */}
+        <VStack space="md">
+          <Text className="text-xl font-poppins-semibold text-typography-900 dark:text-typography-50">
+            Tiket Anda
+          </Text>
+
+          <Grid
+            className="gap-4"
+            _extra={{
+              className: "grid-cols-2",
+            }}
+          >
+            <GridItem
+              className="bg-white shadow-lg rounded-xl"
+              _extra={{
+                className: "flex-1",
+              }}
             >
-              <BadgeText>
-                {seller.isVerified ? "Verified" : "Pending"}
-              </BadgeText>
-            </Badge>
-          </View>
-
-          {/* Verification Status */}
-          {!seller.isVerified && (
-            <Box className="bg-warning-50 dark:bg-warning-900 p-4 rounded-lg border border-warning-200 dark:border-warning-700">
-              <View className="flex-row items-start space-x-3">
-                <FontAwesome
-                  name="clock-o"
-                  size={20}
-                  className="text-warning-600 mt-1"
+                <Image
+                  source={require("@/assets/images/bruno-mars.png")}
+                  className="w-full h-32 object-cover rounded-t-xl"
                 />
-                <View className="flex-1">
-                  <Text className="text-sm font-semibold text-warning-900 dark:text-warning-100 mb-1">
-                    Account Under Review
+                <VStack className="gap-2 p-4">
+                  <Text className="text-[#464646] font-poppins-bold text-lg mb-1">
+                    Bruno Mars Tour
                   </Text>
-                  <Text className="text-sm text-warning-700 dark:text-warning-200">
-                    Your seller account is being reviewed. You'll be able to
-                    list tickets once verified.
+                  <HStack className="text-white font-bold text-lg justify-between">
+                    <Text className="text-[#464646] text-sm">
+                      22 Agustus 2025
+                    </Text>
+                    <Text className="text-[#464646] text-sm">2 Ticket</Text>
+                  </HStack>
+                  <Text className="text-[#464646] font-poppins-semibold text-sm pb-4">
+                    Rp550.000
                   </Text>
-                </View>
-              </View>
-            </Box>
-          )}
-        </View>
+                </VStack>
+            </GridItem>
 
-        {/* Quick Actions */}
-        <Box className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50 mb-4">
-            Quick Actions
-          </Text>
-
-          <View className="space-y-3">
-            <Pressable
-              className={`flex-row items-center space-x-3 p-3 rounded-lg ${
-                seller.isVerified
-                  ? "bg-primary-50 dark:bg-primary-900"
-                  : "bg-background-200 dark:bg-background-700"
-              }`}
-              disabled={!seller.isVerified}
+            <GridItem _extra={{
+              className: ""
+            }}>
+            <Card
+              className="bg-blue-50 dark:bg-background-800 rounded-xl flex-1 min-h-[140px] items-center justify-center border-2 border-dashed border-primary-500"
+              onTouchEnd={() => {
+                if (seller) {
+                  // TODO: Navigate to add ticket page for sellers
+                  console.log("Navigate to add ticket page");
+                } else {
+                  // Navigate to onboarding page for non-sellers
+                  router.push("/seller-onboarding");
+                }
+              }}
             >
-              <FontAwesome
-                name="plus-circle"
-                size={20}
-                className={
-                  seller.isVerified ? "text-primary-600" : "text-typography-400"
-                }
-              />
-              <Text
-                className={`flex-1 font-medium ${
-                  seller.isVerified
-                    ? "text-primary-900 dark:text-primary-100"
-                    : "text-typography-400"
-                }`}
-              >
-                List New Ticket
-              </Text>
-              <FontAwesome
-                name="chevron-right"
-                size={16}
-                className={
-                  seller.isVerified ? "text-primary-600" : "text-typography-400"
-                }
-              />
-            </Pressable>
-
-            <Pressable className="flex-row items-center space-x-3 p-3 rounded-lg bg-background-100 dark:bg-background-800">
-              <FontAwesome
-                name="list"
-                size={20}
-                className="text-typography-600"
-              />
-              <Text className="flex-1 font-medium text-typography-900 dark:text-typography-50">
-                My Listings
-              </Text>
-              <FontAwesome
-                name="chevron-right"
-                size={16}
-                className="text-typography-600"
-              />
-            </Pressable>
-
-            <Pressable className="flex-row items-center space-x-3 p-3 rounded-lg bg-background-100 dark:bg-background-800">
-              <FontAwesome
-                name="bar-chart"
-                size={20}
-                className="text-typography-600"
-              />
-              <Text className="flex-1 font-medium text-typography-900 dark:text-typography-50">
-                Sales Analytics
-              </Text>
-              <FontAwesome
-                name="chevron-right"
-                size={16}
-                className="text-typography-600"
-              />
-            </Pressable>
-          </View>
-        </Box>
-
-        {/* Stats Overview */}
-        <Box className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50 mb-4">
-            Overview
-          </Text>
-
-          <View className="flex-row space-x-4">
-            <Box className="flex-1 bg-primary-100 dark:bg-primary-900 p-4 rounded-lg">
-              <Text className="text-2xl font-bold text-primary-900 dark:text-primary-100 mb-1">
-                0
-              </Text>
-              <Text className="text-sm text-primary-700 dark:text-primary-200">
-                Active Listings
-              </Text>
-            </Box>
-
-            <Box className="flex-1 bg-success-100 dark:bg-success-900 p-4 rounded-lg">
-              <Text className="text-2xl font-bold text-success-900 dark:text-success-100 mb-1">
-                0
-              </Text>
-              <Text className="text-sm text-success-700 dark:text-success-200">
-                Tickets Sold
-              </Text>
-            </Box>
-
-            <Box className="flex-1 bg-info-100 dark:bg-info-900 p-4 rounded-lg">
-              <Text className="text-lg font-bold text-info-900 dark:text-info-100 mb-1">
-                Rp0
-              </Text>
-              <Text className="text-sm text-info-700 dark:text-info-200">
-                Total Earnings
-              </Text>
-            </Box>
-          </View>
-        </Box>
-
-        {/* Recent Activity */}
-        <Box className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50 mb-4">
-            Recent Activity
-          </Text>
-
-          <View className="items-center py-8">
-            <FontAwesome
-              name="inbox"
-              size={32}
-              className="text-typography-400 mb-2"
-            />
-            <Text className="text-typography-600 dark:text-typography-300 text-center">
-              No recent activity
-            </Text>
-            <Text className="text-sm text-typography-400 text-center mt-1">
-              Your sales and listing activities will appear here
-            </Text>
-          </View>
-        </Box>
-
-        {/* Account Information */}
-        <Box className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50 mb-4">
-            Account Information
-          </Text>
-
-          <View className="space-y-3">
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-typography-600 dark:text-typography-300">
-                Seller ID:
-              </Text>
-              <Text className="text-sm font-mono text-typography-900 dark:text-typography-50">
-                {seller.id.slice(0, 8)}...
-              </Text>
-            </View>
-
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-typography-600 dark:text-typography-300">
-                NIK:
-              </Text>
-              <Text className="text-sm font-mono text-typography-900 dark:text-typography-50">
-                {seller.NIK.replace(
-                  /(\d{4})(\d{4})(\d{4})(\d{4})/,
-                  "$1-$2-$3-$4"
-                )}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-typography-600 dark:text-typography-300">
-                Registered:
-              </Text>
-              <Text className="text-sm text-typography-900 dark:text-typography-50">
-                {new Date(seller.created_at).toLocaleDateString()}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-typography-600 dark:text-typography-300">
-                Status:
-              </Text>
-              <Text
-                className={`text-sm font-medium ${
-                  seller.isVerified ? "text-success-600" : "text-warning-600"
-                }`}
-              >
-                {seller.isVerified ? "Verified Seller" : "Pending Verification"}
-              </Text>
-            </View>
-          </View>
-        </Box>
-
-        {/* Help & Support */}
-        <Box className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50 mb-4">
-            Help & Support
-          </Text>
-
-          <View className="space-y-3">
-            <Pressable className="flex-row items-center space-x-3 p-3 rounded-lg bg-background-100 dark:bg-background-800">
-              <FontAwesome
-                name="question-circle"
-                size={20}
-                className="text-typography-600"
-              />
-              <Text className="flex-1 font-medium text-typography-900 dark:text-typography-50">
-                Seller Guidelines
-              </Text>
-              <FontAwesome
-                name="chevron-right"
-                size={16}
-                className="text-typography-600"
-              />
-            </Pressable>
-
-            <Pressable className="flex-row items-center space-x-3 p-3 rounded-lg bg-background-100 dark:bg-background-800">
-              <FontAwesome
-                name="headphones"
-                size={20}
-                className="text-typography-600"
-              />
-              <Text className="flex-1 font-medium text-typography-900 dark:text-typography-50">
-                Contact Support
-              </Text>
-              <FontAwesome
-                name="chevron-right"
-                size={16}
-                className="text-typography-600"
-              />
-            </Pressable>
-          </View>
-        </Box>
-      </View>
+              <VStack className="items-center" space="sm">
+                <Icon as={AddIcon} size="xl" className="text-primary-500" />
+                <Text className="text-[#464646] text-sm text-center">
+                  Tambah Tiket
+                </Text>
+                </VStack>
+              </Card>
+            </GridItem>
+          </Grid>
+        </VStack>
+      </VStack>
     </ScrollView>
   );
 }
