@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Center } from "@/components/ui/center";
 import { Icon, AddIcon } from "@/components/ui/icon";
 import { Image } from "@/components/ui/image";
 import { Grid, GridItem } from "@/components/ui/grid";
+import { LinearGradient } from "@/components/ui/LinearGradient";
 
 interface SellerDashboardProps {
   seller?: any; // Optional - null means user is not a seller yet
@@ -50,14 +51,16 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                 </Text>
               </HStack>
               <HStack>
-                <Badge
-                  size="sm"
-                  variant="solid"
-                  action="info"
-                  className="rounded-full rounded-bl-none"
+                <LinearGradient
+                  className="rounded-full rounded-bl-none items-center py-1"
+                  colors={["#FD6885", "#FE9274", "#FFBB16"]}
+                  start={[0, 1]}
+                  end={[1, 0]}
                 >
-                  <BadgeText className="text-xs">AI Recommendation</BadgeText>
-                </Badge>
+                  <Text className="text-white font-poppins-medium text-xs px-2">
+                    AI Recommendation
+                  </Text>
+                </LinearGradient>
               </HStack>
             </HStack>
           </Box>
@@ -125,8 +128,7 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
               </VStack>
 
               {/* Sell Ticket Button */}
-              <Button
-                className="bg-orange-500"
+              <Pressable
                 onPress={() => {
                   if (seller) {
                     router.push("/seller/addticket");
@@ -135,8 +137,17 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                   }
                 }}
               >
-                <ButtonText>Jual Tiket Sekarang</ButtonText>
-              </Button>
+                <LinearGradient
+                  className="rounded-lg items-center py-2"
+                  colors={["#FD6885", "#FE9274", "#FFBB16"]}
+                  start={[0, 1]}
+                  end={[1, 0]}
+                >
+                  <Text className="text-white font-poppins-medium text-lg">
+                    Jual Tiket Sekarang
+                  </Text>
+                </LinearGradient>
+              </Pressable>
             </VStack>
           </Box>
         </VStack>
