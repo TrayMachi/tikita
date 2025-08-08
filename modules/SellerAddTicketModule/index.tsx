@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { ScrollView, Alert, Pressable } from "react-native";
+import { ScrollView, Alert, Pressable, Text, SafeAreaView } from "react-native";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
-import { Text } from "@/components/Themed";
 import {
   FormControl,
   FormControlLabel,
@@ -28,63 +27,36 @@ import {
 import { Button, ButtonText, ButtonIcon } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Image } from "@/components/ui/image";
+import { useAuth } from "@/contexts/AuthContext";
+
 import * as ImagePicker from "expo-image-picker";
-import { Camera, Upload, ChevronDown, X } from "lucide-react-native";
+import { Camera, Upload, ChevronDown, X, Check } from "lucide-react-native";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Stack } from "expo-router";
-import { Center } from "@/components/ui/center";
-
-interface TicketFormData {
-  namaEvent: string;
-  kategori: string;
-  kotaEvent: string;
-  lokasi: string;
-  tanggal: Date | null;
-  waktu: Date | null;
-  tipeTicket: string;
-  tipeSeat: string;
-  uploadTicket: string | null;
-  gambarThumbnail: string | null;
-}
-
-interface FormErrors {
-  namaEvent?: string;
-  kategori?: string;
-  kotaEvent?: string;
-  lokasi?: string;
-  tanggal?: string;
-  waktu?: string;
-  tipeTicket?: string;
-  tipeSeat?: string;
-  uploadTicket?: string;
-  gambarThumbnail?: string;
-}
-
-const kategoriOptions = [
-  { label: "Konser", value: "konser" },
-  { label: "Festival", value: "festival" },
-  { label: "Pertunjukan", value: "pertunjukan" },
-  { label: "Stand Up Comedy", value: "stand-up-comedy" },
-  { label: "Teater", value: "teater" },
-  { label: "Olahraga", value: "olahraga" },
-  { label: "Seminar", value: "seminar" },
-  { label: "Workshop", value: "workshop" },
-  { label: "Lainnya", value: "lainnya" },
-];
-
-const tipeTicketOptions = [
-  { label: "Fisik", value: "fisik" },
-  { label: "Digital", value: "digital" },
-];
-
-const tipeSeatOptions = [
-  { label: "Reserved Seat (Kursi Bernopmor)", value: "reserved" },
-  { label: "Free Seating (Bebas Duduk)", value: "free" },
-  { label: "Standing (Berdiri)", value: "standing" },
-];
+import {
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
+} from "@/components/ui/slider";
+import { TicketFormData, FormErrors } from "@/types/ticket";
+import {
+  kategoriOptions,
+  tipeTicketOptions,
+  tipeSeatOptions,
+} from "./constant";
+import {
+  createTicket,
+  uploadTicketImage,
+  uploadTicketThumbnail,
+  updateTicketImages,
+} from "@/services/ticketService";
+import { checkSellerStatus } from "@/services/sellerService";
 
 export const SellerAddTicketModule = () => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<TicketFormData>({
     namaEvent: "",
     kategori: "",
@@ -96,6 +68,10 @@ export const SellerAddTicketModule = () => {
     tipeSeat: "",
     uploadTicket: null,
     gambarThumbnail: null,
+    price: 50000,
+    enableCountdownPriceDrop: false,
+    countdownPriceDrops: [0, 0, 0], // [H-1, H-2, H-3]
+    premium: false,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -155,6 +131,21 @@ export const SellerAddTicketModule = () => {
       newErrors.gambarThumbnail = "Gambar thumbnail wajib diupload";
     }
 
+    if (formData.price < 1000) {
+      newErrors.price = "Harga tiket minimal Rp 1.000";
+    }
+
+    if (formData.price > 10000000) {
+      newErrors.price = "Harga tiket maksimal Rp 10.000.000";
+    }
+
+    if (formData.enableCountdownPriceDrop) {
+      if (formData.countdownPriceDrops.some((drop) => drop < 0 || drop > 100)) {
+        newErrors.countdownPriceDrops =
+          "Persentase turun harga harus antara 0-100%";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -181,7 +172,7 @@ export const SellerAddTicketModule = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: type === "thumbnail" ? [16, 9] : [4, 3],
+        aspect: [3, 4],
         quality: 0.8,
       });
 
@@ -209,398 +200,693 @@ export const SellerAddTicketModule = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      // Form is valid, submit the data
-      console.log("Form submitted:", formData);
-      Alert.alert("Sukses", "Tiket berhasil ditambahkan!");
-    } else {
+  const handleSubmit = async () => {
+    if (!validateForm()) {
       Alert.alert("Error", "Mohon lengkapi semua field yang wajib diisi");
+      return;
+    }
+
+    if (!formData.uploadTicket || !formData.gambarThumbnail) {
+      Alert.alert("Error", "Mohon upload gambar tiket dan thumbnail");
+      return;
+    }
+
+    try {
+      const seller = await checkSellerStatus(user?.id || "");
+      if (!seller) {
+        Alert.alert("Error", "Seller tidak ditemukan");
+        return;
+      }
+
+      // First create the ticket to get the ticket ID
+      const ticket = await createTicket(formData, seller.id);
+
+      // Then upload images using the ticket ID
+      const ticketImageUrl = await uploadTicketImage(
+        formData.uploadTicket,
+        ticket.id
+      );
+      const thumbnailUrl = await uploadTicketThumbnail(
+        formData.gambarThumbnail,
+        ticket.id
+      );
+
+      // Update ticket with the uploaded image URLs
+      await updateTicketImages(ticket.id, ticketImageUrl, thumbnailUrl);
+
+      console.log("Ticket created successfully:", {
+        ticket,
+        ticketImageUrl,
+        thumbnailUrl,
+      });
+      Alert.alert("Sukses", "Tiket berhasil ditambahkan!");
+    } catch (error) {
+      console.error("Error creating ticket:", error);
+      Alert.alert("Error", "Gagal menambahkan tiket. Silakan coba lagi.");
     }
   };
 
   return (
-    <ScrollView className="flex-1 bg-background-0 dark:bg-background-950">
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: "Jual Tiket",
-          headerBackVisible: true,
-          headerStyle: {
-            backgroundColor: "#fff",
-          },
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: "600",
-          },
-          headerBackButtonDisplayMode: "minimal",
-          headerTitleAlign: "center",
-        }}
-      />  
-      <VStack className="p-6" space="lg">
-        {/* Header */}
-        <Box>
-          <Text className="text-2xl font-poppins-bold text-typography-900 dark:text-typography-50">
-            Tambah Tiket Baru
+    <SafeAreaView className="flex-1 bg-background-0 dark:bg-background-950">
+      <ScrollView className="flex-1 bg-background-0 dark:bg-background-950">
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            title: "Jual Tiket",
+            headerBackVisible: true,
+            headerStyle: {
+              backgroundColor: "#fff",
+            },
+            headerTitleStyle: {
+              fontSize: 18,
+              fontWeight: "600",
+            },
+            headerBackButtonDisplayMode: "minimal",
+            headerTitleAlign: "center",
+          }}
+        />
+        <VStack className="bg-primary-500 rounded-t-xl p-5 mx-8 shadow-md mt-7">
+          <Text className="text-white font-poppins-semibold text-xl">
+            Buat Listing
           </Text>
-          <Text className="text-sm text-typography-500 dark:text-typography-400 mt-1">
-            Lengkapi informasi event dan tiket Anda
-          </Text>
-        </Box>
-
-        {/* Nama Event */}
-        <FormControl isInvalid={!!errors.namaEvent}>
-          <FormControlLabel>
-            <FormControlLabelText>Nama Event</FormControlLabelText>
-          </FormControlLabel>
-          <Input>
-            <InputField
-              placeholder="Masukkan nama event"
-              value={formData.namaEvent}
-              onChangeText={(text) => updateFormData({ namaEvent: text })}
-            />
-          </Input>
-          {errors.namaEvent && (
-            <FormControlError>
-              <FormControlErrorText>{errors.namaEvent}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Kategori */}
-        <FormControl isInvalid={!!errors.kategori}>
-          <FormControlLabel>
-            <FormControlLabelText>Kategori</FormControlLabelText>
-          </FormControlLabel>
-          <Select
-            selectedValue={formData.kategori}
-            onValueChange={(value) => updateFormData({ kategori: value })}
-          >
-            <SelectTrigger>
-              <SelectInput placeholder="Pilih kategori event" />
-              <SelectIcon as={ChevronDown} />
-            </SelectTrigger>
-            <SelectPortal>
-              <SelectBackdrop />
-              <SelectContent>
-                <SelectDragIndicatorWrapper>
-                  <SelectDragIndicator />
-                </SelectDragIndicatorWrapper>
-                <SelectScrollView>
-                  {kategoriOptions.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                    />
-                  ))}
-                </SelectScrollView>
-              </SelectContent>
-            </SelectPortal>
-          </Select>
-          {errors.kategori && (
-            <FormControlError>
-              <FormControlErrorText>{errors.kategori}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Kota Event */}
-        <FormControl isInvalid={!!errors.kotaEvent}>
-          <FormControlLabel>
-            <FormControlLabelText>Kota Event</FormControlLabelText>
-          </FormControlLabel>
-          <Input>
-            <InputField
-              placeholder="Masukkan kota event"
-              value={formData.kotaEvent}
-              onChangeText={(text) => updateFormData({ kotaEvent: text })}
-            />
-          </Input>
-          {errors.kotaEvent && (
-            <FormControlError>
-              <FormControlErrorText>{errors.kotaEvent}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Lokasi */}
-        <FormControl isInvalid={!!errors.lokasi}>
-          <FormControlLabel>
-            <FormControlLabelText>Lokasi</FormControlLabelText>
-          </FormControlLabel>
-          <Input>
-            <InputField
-              placeholder="Masukkan alamat lengkap lokasi"
-              value={formData.lokasi}
-              onChangeText={(text) => updateFormData({ lokasi: text })}
-              multiline
-            />
-          </Input>
-          {errors.lokasi && (
-            <FormControlError>
-              <FormControlErrorText>{errors.lokasi}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Tanggal dan Waktu */}
-        <HStack space="md">
-          {/* Tanggal */}
-          <Box className="flex-1">
-            <FormControl isInvalid={!!errors.tanggal}>
-              <FormControlLabel>
-                <FormControlLabelText>Tanggal</FormControlLabelText>
-              </FormControlLabel>
-              <DatePicker
-                value={formData.tanggal}
-                onDateChange={(date) => updateFormData({ tanggal: date })}
-                minimumDate={new Date()}
-                placeholder="Pilih tanggal event"
-                isInvalid={!!errors.tanggal}
-              />
-              {errors.tanggal && (
-                <FormControlError>
-                  <FormControlErrorText>{errors.tanggal}</FormControlErrorText>
-                </FormControlError>
-              )}
-            </FormControl>
+        </VStack>
+        <VStack
+          className="p-5 mx-8 shadow-md bg-white rounded-b-xl mb-10"
+          space="lg"
+        >
+          {/* Header */}
+          <Box>
+            <Text className="text-2xl font-poppins-bold text-typography-900 dark:text-typography-50">
+              Tambah Tiket Baru
+            </Text>
+            <Text className="text-sm text-typography-500 dark:text-typography-400 mt-1">
+              Lengkapi informasi event dan tiket Anda
+            </Text>
           </Box>
 
-          {/* Waktu */}
-          <Box className="flex-1">
-            <FormControl isInvalid={!!errors.waktu}>
-              <FormControlLabel>
-                <FormControlLabelText>Waktu</FormControlLabelText>
-              </FormControlLabel>
-              <TimePicker
-                value={formData.waktu}
-                onTimeChange={(time) => updateFormData({ waktu: time })}
-                placeholder="Pilih waktu event"
-                isInvalid={!!errors.waktu}
-                is24Hour={true}
+          {/* Nama Event */}
+          <FormControl isInvalid={!!errors.namaEvent}>
+            <FormControlLabel>
+              <FormControlLabelText>Nama Event</FormControlLabelText>
+            </FormControlLabel>
+            <Input
+              variant="outline"
+              size="lg"
+              className={`border rounded-lg ${
+                errors.namaEvent
+                  ? "border-error-500 bg-error-50 dark:bg-error-950"
+                  : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
+              }`}
+            >
+              <InputField
+                placeholder="Masukkan nama event"
+                value={formData.namaEvent}
+                onChangeText={(text) => updateFormData({ namaEvent: text })}
               />
-              {errors.waktu && (
-                <FormControlError>
-                  <FormControlErrorText>{errors.waktu}</FormControlErrorText>
-                </FormControlError>
+            </Input>
+            {errors.namaEvent && (
+              <FormControlError>
+                <FormControlErrorText>{errors.namaEvent}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Kategori */}
+          <FormControl isInvalid={!!errors.kategori}>
+            <FormControlLabel>
+              <FormControlLabelText>Kategori</FormControlLabelText>
+            </FormControlLabel>
+            <Select
+              selectedValue={formData.kategori}
+              onValueChange={(value) => updateFormData({ kategori: value })}
+            >
+              <SelectTrigger
+                className={`border rounded-lg ${
+                  errors.kategori
+                    ? "border-error-500 bg-error-50 dark:bg-error-950"
+                    : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
+                }`}
+              >
+                <SelectInput placeholder="Pilih kategori event" />
+                <SelectIcon as={ChevronDown} />
+              </SelectTrigger>
+              <SelectPortal>
+                <SelectBackdrop />
+                <SelectContent>
+                  <SelectDragIndicatorWrapper>
+                    <SelectDragIndicator />
+                  </SelectDragIndicatorWrapper>
+                  <SelectScrollView>
+                    {kategoriOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                      />
+                    ))}
+                  </SelectScrollView>
+                </SelectContent>
+              </SelectPortal>
+            </Select>
+            {errors.kategori && (
+              <FormControlError>
+                <FormControlErrorText>{errors.kategori}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Kota Event */}
+          <FormControl isInvalid={!!errors.kotaEvent}>
+            <FormControlLabel>
+              <FormControlLabelText>Kota Event</FormControlLabelText>
+            </FormControlLabel>
+            <Input
+              variant="outline"
+              size="lg"
+              className={`border rounded-lg ${
+                errors.kotaEvent
+                  ? "border-error-500 bg-error-50 dark:bg-error-950"
+                  : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
+              }`}
+            >
+              <InputField
+                placeholder="Masukkan kota event"
+                value={formData.kotaEvent}
+                onChangeText={(text) => updateFormData({ kotaEvent: text })}
+              />
+            </Input>
+            {errors.kotaEvent && (
+              <FormControlError>
+                <FormControlErrorText>{errors.kotaEvent}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Lokasi */}
+          <FormControl isInvalid={!!errors.lokasi}>
+            <FormControlLabel>
+              <FormControlLabelText>Lokasi</FormControlLabelText>
+            </FormControlLabel>
+            <Input
+              variant="outline"
+              size="lg"
+              className={`border rounded-lg ${
+                errors.lokasi
+                  ? "border-error-500 bg-error-50 dark:bg-error-950"
+                  : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
+              }`}
+            >
+              <InputField
+                placeholder="Masukkan alamat lengkap lokasi"
+                value={formData.lokasi}
+                onChangeText={(text) => updateFormData({ lokasi: text })}
+                multiline
+              />
+            </Input>
+            {errors.lokasi && (
+              <FormControlError>
+                <FormControlErrorText>{errors.lokasi}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Tanggal dan Waktu */}
+          <HStack space="md">
+            {/* Tanggal */}
+            <Box className="flex-1">
+              <FormControl isInvalid={!!errors.tanggal}>
+                <FormControlLabel>
+                  <FormControlLabelText>Tanggal</FormControlLabelText>
+                </FormControlLabel>
+                <DatePicker
+                  value={formData.tanggal}
+                  onDateChange={(date) => updateFormData({ tanggal: date })}
+                  minimumDate={new Date()}
+                  placeholder="Pilih tanggal event"
+                  isInvalid={!!errors.tanggal}
+                />
+                {errors.tanggal && (
+                  <FormControlError>
+                    <FormControlErrorText>
+                      {errors.tanggal}
+                    </FormControlErrorText>
+                  </FormControlError>
+                )}
+              </FormControl>
+            </Box>
+
+            {/* Waktu */}
+            <Box className="flex-1">
+              <FormControl isInvalid={!!errors.waktu}>
+                <FormControlLabel>
+                  <FormControlLabelText>Waktu</FormControlLabelText>
+                </FormControlLabel>
+                <TimePicker
+                  value={formData.waktu}
+                  onTimeChange={(time) => updateFormData({ waktu: time })}
+                  placeholder="Pilih waktu event"
+                  isInvalid={!!errors.waktu}
+                  is24Hour={true}
+                />
+                {errors.waktu && (
+                  <FormControlError>
+                    <FormControlErrorText>{errors.waktu}</FormControlErrorText>
+                  </FormControlError>
+                )}
+              </FormControl>
+            </Box>
+          </HStack>
+
+          {/* Tipe Tiket */}
+          <FormControl isInvalid={!!errors.tipeTicket}>
+            <FormControlLabel>
+              <FormControlLabelText>Tipe Tiket</FormControlLabelText>
+            </FormControlLabel>
+            <Select
+              selectedValue={formData.tipeTicket}
+              onValueChange={(value) => updateFormData({ tipeTicket: value })}
+            >
+              <SelectTrigger
+                className={`border rounded-lg ${
+                  errors.tipeTicket
+                    ? "border-error-500 bg-error-50 dark:bg-error-950"
+                    : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
+                }`}
+              >
+                <SelectInput placeholder="Pilih tipe tiket" />
+                <SelectIcon as={ChevronDown} />
+              </SelectTrigger>
+              <SelectPortal>
+                <SelectBackdrop />
+                <SelectContent>
+                  <SelectDragIndicatorWrapper>
+                    <SelectDragIndicator />
+                  </SelectDragIndicatorWrapper>
+                  <SelectScrollView>
+                    {tipeTicketOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                      />
+                    ))}
+                  </SelectScrollView>
+                </SelectContent>
+              </SelectPortal>
+            </Select>
+            {errors.tipeTicket && (
+              <FormControlError>
+                <FormControlErrorText>{errors.tipeTicket}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Tipe Seat */}
+          <FormControl isInvalid={!!errors.tipeSeat}>
+            <FormControlLabel>
+              <FormControlLabelText>Tipe Seat</FormControlLabelText>
+            </FormControlLabel>
+            <Select
+              selectedValue={formData.tipeSeat}
+              onValueChange={(value) => updateFormData({ tipeSeat: value })}
+            >
+              <SelectTrigger
+                className={`border rounded-lg ${
+                  errors.tipeSeat
+                    ? "border-error-500 bg-error-50 dark:bg-error-950"
+                    : "border-[#D5D3D3] bg-background-50 dark:bg-background-900 focus:border-[#D5D3D3]/60"
+                }`}
+              >
+                <SelectInput placeholder="Pilih tipe seat" />
+                <SelectIcon as={ChevronDown} />
+              </SelectTrigger>
+              <SelectPortal>
+                <SelectBackdrop />
+                <SelectContent>
+                  <SelectDragIndicatorWrapper>
+                    <SelectDragIndicator />
+                  </SelectDragIndicatorWrapper>
+                  <SelectScrollView>
+                    {tipeSeatOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                      />
+                    ))}
+                  </SelectScrollView>
+                </SelectContent>
+              </SelectPortal>
+            </Select>
+            {errors.tipeSeat && (
+              <FormControlError>
+                <FormControlErrorText>{errors.tipeSeat}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Price Slider */}
+          <FormControl isInvalid={!!errors.price}>
+            <FormControlLabel>
+              <FormControlLabelText>Harga Tiket</FormControlLabelText>
+            </FormControlLabel>
+
+            <VStack space="md">
+              <Box className="items-center">
+                <Text className="text-2xl font-bold text-primary-500 dark:text-primary-400">
+                  Rp {formData.price.toLocaleString("id-ID")}
+                </Text>
+                <Text className="text-sm text-typography-500 dark:text-typography-400">
+                  Geser untuk mengatur harga
+                </Text>
+              </Box>
+
+              <VStack space="sm" className="px-2">
+                <HStack className="justify-between">
+                  <Text className="text-xs text-typography-500 dark:text-typography-400">
+                    Rp 1.000
+                  </Text>
+                  <Text className="text-xs text-typography-500 dark:text-typography-400">
+                    Rp 10.000.000
+                  </Text>
+                </HStack>
+
+                <Box className="h-12 justify-center">
+                  <Slider
+                    value={formData.price}
+                    onChange={(value: number) => {
+                      updateFormData({ price: value });
+                    }}
+                    minValue={1000}
+                    maxValue={10000000}
+                    step={1000}
+                    className="w-full"
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb />
+                  </Slider>
+                </Box>
+              </VStack>
+            </VStack>
+
+            {errors.price && (
+              <FormControlError>
+                <FormControlErrorText>{errors.price}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Countdown Automatic Price Drop */}
+          <FormControl isInvalid={!!errors.countdownPriceDrops}>
+            <VStack space="md">
+              <HStack space="sm" className="items-center">
+                <Checkbox
+                  isChecked={formData.enableCountdownPriceDrop}
+                  onToggle={() =>
+                    updateFormData({
+                      enableCountdownPriceDrop:
+                        !formData.enableCountdownPriceDrop,
+                    })
+                  }
+                />
+                <FormControlLabel className="flex-1">
+                  <FormControlLabelText>
+                    Countdown Automatic Price Drop
+                  </FormControlLabelText>
+                </FormControlLabel>
+              </HStack>
+
+              <Text className="text-sm text-typography-500 dark:text-typography-400">
+                Otomatis turunkan harga mendekati waktu event
+              </Text>
+
+              {formData.enableCountdownPriceDrop && (
+                <VStack
+                  space="md"
+                  className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700"
+                >
+                  {/* H-3 */}
+                  <HStack space="md" className="items-center">
+                    <Text className="text-sm font-medium text-typography-700 dark:text-typography-300 w-8">
+                      H-3
+                    </Text>
+                    <Text className="flex-1 text-sm text-typography-600 dark:text-typography-400">
+                      akan turun
+                    </Text>
+                    <Input
+                      variant="outline"
+                      size="sm"
+                      className="w-20 border-outline-300 dark:border-outline-600"
+                    >
+                      <InputField
+                        placeholder="10"
+                        value={
+                          formData.countdownPriceDrops[2]?.toString() || ""
+                        }
+                        onChangeText={(text) => {
+                          const newDrops = [...formData.countdownPriceDrops];
+                          newDrops[2] = parseInt(text) || 0;
+                          updateFormData({ countdownPriceDrops: newDrops });
+                        }}
+                        keyboardType="numeric"
+                      />
+                    </Input>
+                    <Text className="text-sm text-typography-600 dark:text-typography-400">
+                      % dari harga awal
+                    </Text>
+                  </HStack>
+
+                  {/* H-2 */}
+                  <HStack space="md" className="items-center">
+                    <Text className="text-sm font-medium text-typography-700 dark:text-typography-300 w-8">
+                      H-2
+                    </Text>
+                    <Text className="flex-1 text-sm text-typography-600 dark:text-typography-400">
+                      akan turun
+                    </Text>
+                    <Input
+                      variant="outline"
+                      size="sm"
+                      className="w-20 border-outline-300 dark:border-outline-600"
+                    >
+                      <InputField
+                        placeholder="15"
+                        value={
+                          formData.countdownPriceDrops[1]?.toString() || ""
+                        }
+                        onChangeText={(text) => {
+                          const newDrops = [...formData.countdownPriceDrops];
+                          newDrops[1] = parseInt(text) || 0;
+                          updateFormData({ countdownPriceDrops: newDrops });
+                        }}
+                        keyboardType="numeric"
+                      />
+                    </Input>
+                    <Text className="text-sm text-typography-600 dark:text-typography-400">
+                      % dari harga awal
+                    </Text>
+                  </HStack>
+
+                  {/* H-1 */}
+                  <HStack space="md" className="items-center">
+                    <Text className="text-sm font-medium text-typography-700 dark:text-typography-300 w-8">
+                      H-1
+                    </Text>
+                    <Text className="flex-1 text-sm text-typography-600 dark:text-typography-400">
+                      akan turun
+                    </Text>
+                    <Input
+                      variant="outline"
+                      size="sm"
+                      className="w-20 border-outline-300 dark:border-outline-600"
+                    >
+                      <InputField
+                        placeholder="20"
+                        value={
+                          formData.countdownPriceDrops[0]?.toString() || ""
+                        }
+                        onChangeText={(text) => {
+                          const newDrops = [...formData.countdownPriceDrops];
+                          newDrops[0] = parseInt(text) || 0;
+                          updateFormData({ countdownPriceDrops: newDrops });
+                        }}
+                        keyboardType="numeric"
+                      />
+                    </Input>
+                    <Text className="text-sm text-typography-600 dark:text-typography-400">
+                      % dari harga awal
+                    </Text>
+                  </HStack>
+                </VStack>
               )}
-            </FormControl>
+            </VStack>
+
+            {errors.countdownPriceDrops && (
+              <FormControlError>
+                <FormControlErrorText>
+                  {errors.countdownPriceDrops}
+                </FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Upload Tiket */}
+          <FormControl isInvalid={!!errors.uploadTicket}>
+            <FormControlLabel>
+              <FormControlLabelText>Upload Tiket</FormControlLabelText>
+            </FormControlLabel>
+
+            {formData.uploadTicket ? (
+              <VStack space="sm">
+                <Image
+                  source={{ uri: formData.uploadTicket }}
+                  className="w-full h-48 rounded-lg border border-outline-200"
+                  alt="Ticket Preview"
+                />
+                <HStack space="sm">
+                  <Button
+                    onPress={() => pickImage("ticket")}
+                    disabled={isLoadingTicket}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    <ButtonIcon as={Upload} />
+                    <ButtonText>
+                      {isLoadingTicket ? "Mengunggah..." : "Ganti Tiket"}
+                    </ButtonText>
+                  </Button>
+                  <Button
+                    onPress={() => removeImage("ticket")}
+                    action="negative"
+                    variant="outline"
+                  >
+                    <ButtonIcon as={X} />
+                  </Button>
+                </HStack>
+              </VStack>
+            ) : (
+              <Pressable
+                onPress={() => pickImage("ticket")}
+                disabled={isLoadingTicket}
+                className="w-full py-8 border-dashed border-2 border-primary-300 rounded-xl bg-primary-50 dark:bg-primary-950"
+              >
+                <VStack className="items-center" space="sm">
+                  <Box className="bg-primary-100 dark:bg-primary-900 rounded-full p-3">
+                    <Icon as={Upload} size="xl" className="text-primary-500" />
+                  </Box>
+                  <Text className="text-primary-500 font-poppins-medium">
+                    {isLoadingTicket ? "Mengunggah..." : "Upload Foto Tiket"}
+                  </Text>
+                  <Text className="text-xs text-typography-500 text-center px-4">
+                    Foto tiket yang jelas dan dapat dibaca
+                  </Text>
+                </VStack>
+              </Pressable>
+            )}
+
+            {errors.uploadTicket && (
+              <FormControlError>
+                <FormControlErrorText>
+                  {errors.uploadTicket}
+                </FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Gambar Thumbnail */}
+          <FormControl isInvalid={!!errors.gambarThumbnail}>
+            <FormControlLabel>
+              <FormControlLabelText>Gambar Thumbnail</FormControlLabelText>
+            </FormControlLabel>
+
+            {formData.gambarThumbnail ? (
+              <VStack space="sm">
+                <Image
+                  source={{ uri: formData.gambarThumbnail }}
+                  className="w-full h-48 rounded-lg border border-outline-200"
+                  alt="Thumbnail Preview"
+                />
+                <HStack space="sm">
+                  <Button
+                    onPress={() => pickImage("thumbnail")}
+                    disabled={isLoadingThumbnail}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    <ButtonIcon as={Camera} />
+                    <ButtonText>
+                      {isLoadingThumbnail ? "Mengunggah..." : "Ganti Thumbnail"}
+                    </ButtonText>
+                  </Button>
+                  <Button
+                    onPress={() => removeImage("thumbnail")}
+                    action="negative"
+                    variant="outline"
+                  >
+                    <ButtonIcon as={X} />
+                  </Button>
+                </HStack>
+              </VStack>
+            ) : (
+              <Pressable
+                onPress={() => pickImage("thumbnail")}
+                disabled={isLoadingThumbnail}
+                className="w-full py-8 border-dashed border-2 border-primary-300 rounded-xl bg-primary-50 dark:bg-primary-950"
+              >
+                <VStack className="items-center" space="sm">
+                  <Box className="bg-primary-100 dark:bg-primary-900 rounded-full p-3">
+                    <Icon as={Camera} size="xl" className="text-primary-500" />
+                  </Box>
+                  <Text className="text-primary-500 font-poppins-medium">
+                    {isLoadingThumbnail
+                      ? "Mengunggah..."
+                      : "Upload Gambar Thumbnail"}
+                  </Text>
+                  <Text className="text-xs text-typography-500 text-center px-4">
+                    Gambar menarik untuk mempromosikan event Anda (3:4)
+                  </Text>
+                </VStack>
+              </Pressable>
+            )}
+
+            {errors.gambarThumbnail && (
+              <FormControlError>
+                <FormControlErrorText>
+                  {errors.gambarThumbnail}
+                </FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Submit Button */}
+          <Box className="pt-4">
+            <Button onPress={handleSubmit} size="lg">
+              <ButtonText>Tambah Tiket</ButtonText>
+            </Button>
           </Box>
-        </HStack>
 
-        {/* Tipe Tiket */}
-        <FormControl isInvalid={!!errors.tipeTicket}>
-          <FormControlLabel>
-            <FormControlLabelText>Tipe Tiket</FormControlLabelText>
-          </FormControlLabel>
-          <Select
-            selectedValue={formData.tipeTicket}
-            onValueChange={(value) => updateFormData({ tipeTicket: value })}
-          >
-            <SelectTrigger>
-              <SelectInput placeholder="Pilih tipe tiket" />
-              <SelectIcon as={ChevronDown} />
-            </SelectTrigger>
-            <SelectPortal>
-              <SelectBackdrop />
-              <SelectContent>
-                <SelectDragIndicatorWrapper>
-                  <SelectDragIndicator />
-                </SelectDragIndicatorWrapper>
-                <SelectScrollView>
-                  {tipeTicketOptions.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                    />
-                  ))}
-                </SelectScrollView>
-              </SelectContent>
-            </SelectPortal>
-          </Select>
-          {errors.tipeTicket && (
-            <FormControlError>
-              <FormControlErrorText>{errors.tipeTicket}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
+          {/* Bottom spacing */}
+          <Box className="h-6" />
+        </VStack>
+      </ScrollView>
+      <VStack className="px-6 py-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700">
+        <HStack className="justify-between">
+          <VStack space="sm">
+            <Text className="text-[#7C7C7C] dark:text-typography-50 font-inter-medium text-sm">
+              *8% dari harga tiket
+            </Text>
+            <Text className="text-primary-500 dark:text-typography-50 font-poppins-semibold text-lg">
+              Rp 100.000
+            </Text>
+          </VStack>
 
-        {/* Tipe Seat */}
-        <FormControl isInvalid={!!errors.tipeSeat}>
-          <FormControlLabel>
-            <FormControlLabelText>Tipe Seat</FormControlLabelText>
-          </FormControlLabel>
-          <Select
-            selectedValue={formData.tipeSeat}
-            onValueChange={(value) => updateFormData({ tipeSeat: value })}
-          >
-            <SelectTrigger>
-              <SelectInput placeholder="Pilih tipe seat" />
-              <SelectIcon as={ChevronDown} />
-            </SelectTrigger>
-            <SelectPortal>
-              <SelectBackdrop />
-              <SelectContent>
-                <SelectDragIndicatorWrapper>
-                  <SelectDragIndicator />
-                </SelectDragIndicatorWrapper>
-                <SelectScrollView>
-                  {tipeSeatOptions.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                    />
-                  ))}
-                </SelectScrollView>
-              </SelectContent>
-            </SelectPortal>
-          </Select>
-          {errors.tipeSeat && (
-            <FormControlError>
-              <FormControlErrorText>{errors.tipeSeat}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Upload Tiket */}
-        <FormControl isInvalid={!!errors.uploadTicket}>
-          <FormControlLabel>
-            <FormControlLabelText>Upload Tiket</FormControlLabelText>
-          </FormControlLabel>
-
-          {formData.uploadTicket ? (
-            <VStack space="sm">
-              <Image
-                source={{ uri: formData.uploadTicket }}
-                className="w-full h-48 rounded-lg border border-outline-200"
-                alt="Ticket Preview"
-              />
-              <HStack space="sm">
-                <Button
-                  onPress={() => pickImage("ticket")}
-                  disabled={isLoadingTicket}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  <ButtonIcon as={Upload} />
-                  <ButtonText>
-                    {isLoadingTicket ? "Mengunggah..." : "Ganti Tiket"}
-                  </ButtonText>
-                </Button>
-                <Button
-                  onPress={() => removeImage("ticket")}
-                  action="negative"
-                  variant="outline"
-                >
-                  <ButtonIcon as={X} />
-                </Button>
-              </HStack>
-            </VStack>
-          ) : (
-            <Pressable
-              onPress={() => pickImage("ticket")}
-              disabled={isLoadingTicket}
-              className="w-full py-8 border-dashed border-2 border-primary-300 rounded-xl bg-primary-50 dark:bg-primary-950"
-            >
-              <VStack className="items-center" space="sm">
-                <Box className="bg-primary-100 dark:bg-primary-900 rounded-full p-3">
-                  <Icon as={Upload} size="xl" className="text-primary-500" />
-                </Box>
-                <Text className="text-primary-500 font-poppins-medium">
-                  {isLoadingTicket ? "Mengunggah..." : "Upload Foto Tiket"}
-                </Text>
-                <Text className="text-xs text-typography-500 text-center px-4">
-                  Foto tiket yang jelas dan dapat dibaca
-                </Text>
-              </VStack>
-            </Pressable>
-          )}
-
-          {errors.uploadTicket && (
-            <FormControlError>
-              <FormControlErrorText>{errors.uploadTicket}</FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Gambar Thumbnail */}
-        <FormControl isInvalid={!!errors.gambarThumbnail}>
-          <FormControlLabel>
-            <FormControlLabelText>Gambar Thumbnail</FormControlLabelText>
-          </FormControlLabel>
-
-          {formData.gambarThumbnail ? (
-            <VStack space="sm">
-              <Image
-                source={{ uri: formData.gambarThumbnail }}
-                className="w-full h-48 rounded-lg border border-outline-200"
-                alt="Thumbnail Preview"
-              />
-              <HStack space="sm">
-                <Button
-                  onPress={() => pickImage("thumbnail")}
-                  disabled={isLoadingThumbnail}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  <ButtonIcon as={Camera} />
-                  <ButtonText>
-                    {isLoadingThumbnail ? "Mengunggah..." : "Ganti Thumbnail"}
-                  </ButtonText>
-                </Button>
-                <Button
-                  onPress={() => removeImage("thumbnail")}
-                  action="negative"
-                  variant="outline"
-                >
-                  <ButtonIcon as={X} />
-                </Button>
-              </HStack>
-            </VStack>
-          ) : (
-            <Pressable
-              onPress={() => pickImage("thumbnail")}
-              disabled={isLoadingThumbnail}
-              className="w-full py-8 border-dashed border-2 border-primary-300 rounded-xl bg-primary-50 dark:bg-primary-950"
-            >
-              <VStack className="items-center" space="sm">
-                <Box className="bg-primary-100 dark:bg-primary-900 rounded-full p-3">
-                  <Icon as={Camera} size="xl" className="text-primary-500" />
-                </Box>
-                <Text className="text-primary-500 font-poppins-medium">
-                  {isLoadingThumbnail
-                    ? "Mengunggah..."
-                    : "Upload Gambar Thumbnail"}
-                </Text>
-                <Text className="text-xs text-typography-500 text-center px-4">
-                  Gambar menarik untuk mempromosikan event Anda (16:9)
-                </Text>
-              </VStack>
-            </Pressable>
-          )}
-
-          {errors.gambarThumbnail && (
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.gambarThumbnail}
-              </FormControlErrorText>
-            </FormControlError>
-          )}
-        </FormControl>
-
-        {/* Submit Button */}
-        <Box className="pt-4">
-          <Button onPress={handleSubmit} size="lg">
-            <ButtonText>Tambah Tiket</ButtonText>
+          <Button size="lg">
+            <ButtonText className="font-semibold">Bayar & Jual</ButtonText>
           </Button>
-        </Box>
-
-        {/* Bottom spacing */}
-        <Box className="h-6" />
+        </HStack>
       </VStack>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
