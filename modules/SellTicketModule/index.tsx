@@ -7,7 +7,6 @@ import LoadingState from "./elements/LoadingState";
 import ErrorState from "./elements/ErrorState";
 import SignInRequiredState from "./elements/SignInRequiredState";
 import SellerDashboard from "./sections/SellerDashboard";
-import SellerOnboarding from "./sections/SellerOnboarding";
 
 export default function SellTicketModule() {
   const { user, loading: authLoading } = useAuth();
@@ -33,11 +32,6 @@ export default function SellTicketModule() {
     }
   };
 
-  const handleOnboardingComplete = () => {
-    // Refresh seller status after onboarding completion
-    checkUserSellerStatus();
-  };
-
   useEffect(() => {
     if (!authLoading && user) {
       checkUserSellerStatus();
@@ -61,11 +55,6 @@ export default function SellTicketModule() {
     return <SignInRequiredState />;
   }
 
-  // Show seller dashboard if user is already a seller
-  if (seller) {
-    return <SellerDashboard seller={seller} />;
-  }
-
-  // Show onboarding if user is not a seller yet
-  return <SellerOnboarding onComplete={handleOnboardingComplete} />;
+  // Always show seller dashboard with seller status
+  return <SellerDashboard seller={seller} />;
 }

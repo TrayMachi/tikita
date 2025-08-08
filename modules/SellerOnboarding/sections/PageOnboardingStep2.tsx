@@ -4,15 +4,15 @@ import { View, Text } from "@/components/Themed";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { Box } from "@/components/ui/box";
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "@/components/ui/image";
 import type { OnboardingStepProps } from "@/types/seller";
 import { checkNIKAvailability } from "@/services/sellerService";
 
-export default function OnboardingStep2({
-  onNext,
-  onPrevious,
+export default function PageOnboardingStep2({
   formData,
   updateFormData,
 }: OnboardingStepProps) {
@@ -67,8 +67,6 @@ export default function OnboardingStep2({
       });
 
       if (!result.canceled && result.assets[0]) {
-        // For now, we'll store the local URI
-        // In production, you'd upload to Supabase storage here
         updateFormData({ linkKtp: result.assets[0].uri });
       }
     } catch (error) {
@@ -79,38 +77,22 @@ export default function OnboardingStep2({
     }
   };
 
-  const canProceed = () => {
-    return (
-      formData.NIK.length === 16 &&
-      formData.nama.trim().length > 0 &&
-      formData.linkKtp.length > 0 &&
-      !nikError &&
-      !isCheckingNik
-    );
-  };
-
   return (
-    <ScrollView className="flex-1 px-6 py-4">
-      <View className="space-y-6">
-        {/* Header */}
-        <View className="items-center space-y-2">
-          <Text className="text-2xl font-heading text-center text-typography-900 dark:text-typography-50">
-            Personal Information
+    <ScrollView className="flex-1 bg-white dark:bg-background-950">
+      <VStack className="px-6 py-6" space="lg">
+        {/* Description */}
+        <VStack className="items-center" space="sm">
+          <Text className="text-base text-center text-typography-600 dark:text-typography-300">
+            Masukkan informasi identitas Anda sesuai dengan KTP untuk
+            verifikasi.
           </Text>
-          <Text className="text-sm text-center text-typography-600 dark:text-typography-300">
-            Step 2 of 4
-          </Text>
-        </View>
-
-        {/* Progress Bar */}
-        <View className="w-full bg-background-200 dark:bg-background-700 rounded-full h-2">
-          <View className="bg-primary-500 h-2 rounded-full w-1/2" />
-        </View>
+        </VStack>
 
         {/* NIK Input */}
         <Box className="space-y-3">
           <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50">
-            NIK (Nomor Induk Kependudukan)
+            NIK (Nomor Induk Kependudukan){" "}
+            <Text className="text-error-500">*</Text>
           </Text>
 
           <Input
@@ -119,7 +101,7 @@ export default function OnboardingStep2({
             className={`${nikError ? "border-error-500" : ""}`}
           >
             <InputField
-              placeholder="Enter your 16-digit NIK"
+              placeholder="Masukkan NIK 16 digit"
               value={formData.NIK}
               onChangeText={handleNikChange}
               keyboardType="numeric"
@@ -128,16 +110,16 @@ export default function OnboardingStep2({
           </Input>
 
           {isCheckingNik && (
-            <View className="flex-row items-center space-x-2">
+            <HStack className="items-center" space="sm">
               <FontAwesome
                 name="spinner"
                 size={16}
                 className="text-primary-500"
               />
               <Text className="text-sm text-primary-500">
-                Checking NIK availability...
+                Memeriksa ketersediaan NIK...
               </Text>
-            </View>
+            </HStack>
           )}
 
           {nikError && (
@@ -145,26 +127,29 @@ export default function OnboardingStep2({
           )}
 
           {formData.NIK.length === 16 && !nikError && !isCheckingNik && (
-            <View className="flex-row items-center space-x-2">
+            <HStack className="items-center" space="sm">
               <FontAwesome
                 name="check-circle"
                 size={16}
                 className="text-success-500"
               />
-              <Text className="text-sm text-success-500">NIK is available</Text>
-            </View>
+              <Text className="text-sm text-success-500">NIK tersedia</Text>
+            </HStack>
           )}
         </Box>
 
         {/* Full Name Input */}
         <Box className="space-y-3">
           <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50">
-            Full Name (as in KTP)
+            Nama Lengkap <Text className="text-error-500">*</Text>
+          </Text>
+          <Text className="text-sm text-typography-600 dark:text-typography-300">
+            Sesuai dengan yang tertera di KTP
           </Text>
 
           <Input variant="outline" size="lg">
             <InputField
-              placeholder="Enter your full name"
+              placeholder="Masukkan nama lengkap Anda"
               value={formData.nama}
               onChangeText={(nama) => updateFormData({ nama })}
             />
@@ -174,18 +159,19 @@ export default function OnboardingStep2({
         {/* KTP Photo Upload */}
         <Box className="space-y-3">
           <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50">
-            KTP Photo
+            Foto KTP <Text className="text-error-500">*</Text>
           </Text>
 
           <Text className="text-sm text-typography-600 dark:text-typography-300">
-            Take a clear photo of your KTP. Make sure all text is readable.
+            Ambil foto KTP yang jelas. Pastikan semua teks dapat dibaca dengan
+            baik.
           </Text>
 
           {formData.linkKtp ? (
-            <View className="space-y-3">
+            <VStack space="md">
               <Image
                 source={{ uri: formData.linkKtp }}
-                className="w-full h-48 rounded-lg"
+                className="w-full h-48 rounded-lg border border-outline-200"
                 alt="KTP Preview"
               />
 
@@ -193,61 +179,37 @@ export default function OnboardingStep2({
                 variant="outline"
                 onPress={pickKtpImage}
                 disabled={isUploadingKtp}
-                className="w-full py-3"
+                className="w-full"
               >
                 <ButtonText className="text-primary-500">
-                  {isUploadingKtp ? "Uploading..." : "Change Photo"}
+                  {isUploadingKtp ? "Mengunggah..." : "Ganti Foto"}
                 </ButtonText>
               </Button>
-            </View>
+            </VStack>
           ) : (
             <Button
               variant="outline"
               onPress={pickKtpImage}
               disabled={isUploadingKtp}
-              className="w-full py-8 border-dashed border-2"
+              className="w-full py-8 border-dashed border-2 border-primary-300"
             >
-              <View className="items-center space-y-2">
+              <VStack className="items-center" space="sm">
                 <FontAwesome
                   name={isUploadingKtp ? "spinner" : "camera"}
-                  size={24}
+                  size={32}
                   className="text-primary-500"
                 />
-                <ButtonText className="text-primary-500">
-                  {isUploadingKtp ? "Uploading..." : "Upload KTP Photo"}
+                <ButtonText className="text-primary-500 font-medium">
+                  {isUploadingKtp ? "Mengunggah..." : "Ambil Foto KTP"}
                 </ButtonText>
-              </View>
+                <Text className="text-sm text-typography-500">
+                  Ketuk untuk mengambil atau memilih foto
+                </Text>
+              </VStack>
             </Button>
           )}
         </Box>
-
-        {/* Navigation Buttons */}
-        <View className="flex-row space-x-4 pt-4">
-          <Button
-            variant="outline"
-            onPress={onPrevious}
-            className="flex-1 py-4"
-          >
-            <ButtonText className="text-primary-500">Back</ButtonText>
-          </Button>
-
-          <Button
-            onPress={onNext}
-            disabled={!canProceed()}
-            className={`flex-1 py-4 ${
-              canProceed()
-                ? "bg-primary-500 hover:bg-primary-600"
-                : "bg-background-300 dark:bg-background-600"
-            }`}
-          >
-            <ButtonText
-              className={canProceed() ? "text-white" : "text-typography-400"}
-            >
-              Next
-            </ButtonText>
-          </Button>
-        </View>
-      </View>
+      </VStack>
     </ScrollView>
   );
 }

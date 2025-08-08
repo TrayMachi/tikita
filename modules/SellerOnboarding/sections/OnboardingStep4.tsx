@@ -142,9 +142,7 @@ export default function OnboardingStep4({
           <ButtonText className="text-primary-500">Back</ButtonText>
         </Button>
 
-        <Button
-          onPress={onNext}
-        >
+        <Button onPress={onNext}>
           <ButtonText className="text-white font-semibold">
             Complete Registration
           </ButtonText>
