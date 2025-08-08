@@ -19,7 +19,7 @@ export const FormInput: React.FC<FormInputProps> = function FormInput({
   return (
     <View className={className}>
       <Text className="text-sm font-semibold text-[#5A5A5A] mb-2 ml-1">
-        {label}
+        {label} <Text className="text-error-500">*</Text>
       </Text>
       <Input
         variant="outline"

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { ScrollView, Alert } from "react-native";
-import { View, Text } from "@/components/Themed";
+import { ScrollView, Alert, Text, Pressable } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Input, InputField } from "@/components/ui/input";
+import { FormInput } from "@/components/ui/FormInput";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
@@ -11,8 +10,9 @@ import * as ImagePicker from "expo-image-picker";
 import { Image } from "@/components/ui/image";
 import type { OnboardingStepProps } from "@/types/seller";
 import { checkNIKAvailability } from "@/services/sellerService";
+import { AddIcon, CircleIcon, Icon, RepeatIcon } from "@/components/ui/icon";
 
-export default function PageOnboardingStep2({
+export default function OnboardingStep2({
   formData,
   updateFormData,
 }: OnboardingStepProps) {
@@ -89,28 +89,19 @@ export default function PageOnboardingStep2({
         </VStack>
 
         {/* NIK Input */}
-        <Box className="space-y-3">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50">
-            NIK (Nomor Induk Kependudukan){" "}
-            <Text className="text-error-500">*</Text>
-          </Text>
-
-          <Input
-            variant="outline"
-            size="lg"
-            className={`${nikError ? "border-error-500" : ""}`}
-          >
-            <InputField
-              placeholder="Masukkan NIK 16 digit"
-              value={formData.NIK}
-              onChangeText={handleNikChange}
-              keyboardType="numeric"
-              maxLength={16}
-            />
-          </Input>
+        <VStack space="sm">
+          <FormInput
+            label="NIK (Nomor Induk Kependudukan)"
+            placeholder="Masukkan NIK 16 digit"
+            value={formData.NIK}
+            onChangeText={handleNikChange}
+            keyboardType="numeric"
+            maxLength={16}
+            error={nikError}
+          />
 
           {isCheckingNik && (
-            <HStack className="items-center" space="sm">
+            <HStack className="items-center ml-1" space="sm">
               <FontAwesome
                 name="spinner"
                 size={16}
@@ -122,12 +113,8 @@ export default function PageOnboardingStep2({
             </HStack>
           )}
 
-          {nikError && (
-            <Text className="text-sm text-error-500">{nikError}</Text>
-          )}
-
           {formData.NIK.length === 16 && !nikError && !isCheckingNik && (
-            <HStack className="items-center" space="sm">
+            <HStack className="items-center ml-1" space="sm">
               <FontAwesome
                 name="check-circle"
                 size={16}
@@ -136,35 +123,25 @@ export default function PageOnboardingStep2({
               <Text className="text-sm text-success-500">NIK tersedia</Text>
             </HStack>
           )}
-        </Box>
+        </VStack>
 
         {/* Full Name Input */}
-        <Box className="space-y-3">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50">
-            Nama Lengkap <Text className="text-error-500">*</Text>
-          </Text>
-          <Text className="text-sm text-typography-600 dark:text-typography-300">
+        <VStack space="xs">
+          <FormInput
+            label="Nama Lengkap"
+            placeholder="Masukkan nama lengkap Anda"
+            value={formData.nama}
+            onChangeText={(nama) => updateFormData({ nama })}
+          />
+          <Text className="text-sm text-typography-600 dark:text-typography-300 ml-1">
             Sesuai dengan yang tertera di KTP
           </Text>
-
-          <Input variant="outline" size="lg">
-            <InputField
-              placeholder="Masukkan nama lengkap Anda"
-              value={formData.nama}
-              onChangeText={(nama) => updateFormData({ nama })}
-            />
-          </Input>
-        </Box>
+        </VStack>
 
         {/* KTP Photo Upload */}
-        <Box className="space-y-3">
-          <Text className="text-lg font-semibold text-typography-900 dark:text-typography-50">
+        <VStack space="sm">
+          <Text className="text-lg font-semibold text-[#5A5A5A] dark:text-typography-50">
             Foto KTP <Text className="text-error-500">*</Text>
-          </Text>
-
-          <Text className="text-sm text-typography-600 dark:text-typography-300">
-            Ambil foto KTP yang jelas. Pastikan semua teks dapat dibaca dengan
-            baik.
           </Text>
 
           {formData.linkKtp ? (
@@ -175,40 +152,40 @@ export default function PageOnboardingStep2({
                 alt="KTP Preview"
               />
 
-              <Button
-                variant="outline"
+              <Pressable
                 onPress={pickKtpImage}
                 disabled={isUploadingKtp}
-                className="w-full"
+                className="w-full py-8 border-dashed border-2 border-primary-300 rounded-xl"
               >
-                <ButtonText className="text-primary-500">
-                  {isUploadingKtp ? "Mengunggah..." : "Ganti Foto"}
-                </ButtonText>
-              </Button>
+                <VStack className="items-center" space="sm">
+                  <Icon as={AddIcon} size="xl" className="text-primary-500 bg-[#B6D0FD] rounded-full p-2" />
+                  <Text className="text-primary-500 font-medium">
+                    {isUploadingKtp ? "Mengunggah..." : "Ganti Foto"}
+                  </Text>
+                  <Text className="text-sm text-typography-500">
+                    Ketuk untuk mengambil atau memilih foto
+                  </Text>
+                </VStack>
+              </Pressable>
             </VStack>
           ) : (
-            <Button
-              variant="outline"
+            <Pressable
               onPress={pickKtpImage}
               disabled={isUploadingKtp}
-              className="w-full py-8 border-dashed border-2 border-primary-300"
+              className="w-full py-8 border-dashed border-2 border-primary-300 rounded-xl"
             >
               <VStack className="items-center" space="sm">
-                <FontAwesome
-                  name={isUploadingKtp ? "spinner" : "camera"}
-                  size={32}
-                  className="text-primary-500"
-                />
-                <ButtonText className="text-primary-500 font-medium">
-                  {isUploadingKtp ? "Mengunggah..." : "Ambil Foto KTP"}
-                </ButtonText>
+                <Icon as={AddIcon} size="xl" className="text-primary-500 bg-[#B6D0FD] rounded-full p-2" />
+                <Text className="text-primary-500 font-medium">
+                  {isUploadingKtp ? "Mengunggah..." : "Unggah Foto KTP Kamu"}
+                </Text>
                 <Text className="text-sm text-typography-500">
                   Ketuk untuk mengambil atau memilih foto
                 </Text>
               </VStack>
-            </Button>
+            </Pressable>
           )}
-        </Box>
+        </VStack>
       </VStack>
     </ScrollView>
   );

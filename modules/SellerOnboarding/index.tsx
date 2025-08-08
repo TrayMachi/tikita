@@ -2,18 +2,20 @@ import React, { useState } from "react";
 import { SafeAreaView, Alert, View, Pressable } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Text } from "@/components/Themed";
+import { Text } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import { createSeller } from "@/services/sellerService";
 import type { SellerFormData, SellerOnboardingState } from "@/types/seller";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import PageOnboardingStep1 from "@/modules/SellerOnboarding/sections/PageOnboardingStep1";
-import PageOnboardingStep2 from "@/modules/SellerOnboarding/sections/PageOnboardingStep2";
 import OnboardingStep3 from "@/modules/SellerOnboarding/sections/OnboardingStep3";
 import OnboardingStep4 from "@/modules/SellerOnboarding/sections/OnboardingStep4";
 import { Center } from "@/components/ui/center";
+import StepIndicator from "@/modules/SellerOnboarding/elements/StepIndicator";
+import OnboardingStep1 from "./sections/OnboardingStep1";
+import OnboardingStep2 from "./sections/OnboardingStep2";
+import { HStack } from "@/components/ui/hstack";
+import { Grid, GridItem } from "@/components/ui/grid";
 
 function getStepTitle(step: number): string {
   switch (step) {
@@ -24,64 +26,10 @@ function getStepTitle(step: number): string {
     case 3:
       return "Upload Foto KTP";
     case 4:
-      return "Verifikasi Selfie";
+      return "Pastikan Dokumen Kamu Sudah Benar";
     default:
       return "Langkah " + step;
   }
-}
-
-function StepIndicator({
-  currentStep,
-  totalSteps,
-}: {
-  currentStep: number;
-  totalSteps: number;
-}) {
-  return (
-    <HStack className="items-center justify-center" space="md">
-      {Array.from({ length: totalSteps }, (_, index) => {
-        const stepNumber = index + 1;
-        const isActive = stepNumber === currentStep;
-        const isCompleted = stepNumber < currentStep;
-
-        return (
-          <HStack key={stepNumber} className="items-center">
-            {/* Step Circle */}
-            <View
-              className={`w-8 h-8 rounded-full items-center justify-center ${
-                isActive
-                  ? "bg-primary-500"
-                  : isCompleted
-                  ? "bg-primary-500"
-                  : "bg-gray-300 dark:bg-gray-600"
-              }`}
-            >
-              <Text
-                className={`text-sm font-bold ${
-                  isActive || isCompleted
-                    ? "text-white"
-                    : "text-gray-500 dark:text-gray-400"
-                }`}
-              >
-                {stepNumber}
-              </Text>
-            </View>
-
-            {/* Connector Line */}
-            {index < totalSteps - 1 && (
-              <View
-                className={`w-16 h-0.5 mx-2 ${
-                  isCompleted
-                    ? "bg-primary-500"
-                    : "bg-gray-300 dark:bg-gray-600"
-                }`}
-              />
-            )}
-          </HStack>
-        );
-      })}
-    </HStack>
-  );
 }
 
 export default function SellerOnboardingModule() {
@@ -173,7 +121,7 @@ export default function SellerOnboardingModule() {
   const getNextButtonText = () => {
     switch (state.currentStep) {
       case 1:
-        return "Saya Siap, Mari Mulai";
+        return "Saya Siap";
       case 4:
         return state.isSubmitting ? "Mengirim..." : "Kirim Aplikasi";
       default:
@@ -211,15 +159,15 @@ export default function SellerOnboardingModule() {
 
     switch (state.currentStep) {
       case 1:
-        return <PageOnboardingStep1 {...stepProps} />;
+        return <OnboardingStep1 {...stepProps} />;
       case 2:
-        return <PageOnboardingStep2 {...stepProps} />;
+        return <OnboardingStep2 {...stepProps} />;
       case 3:
         return <OnboardingStep3 {...stepProps} />;
       case 4:
         return <OnboardingStep4 {...stepProps} />;
       default:
-        return <PageOnboardingStep1 {...stepProps} />;
+        return <OnboardingStep1 {...stepProps} />;
     }
   };
 
@@ -259,11 +207,11 @@ export default function SellerOnboardingModule() {
 
       <VStack className="flex-1 my-7">
         <StepIndicator currentStep={state.currentStep} totalSteps={4} />
-        <VStack className="items-center mt-2">
-          <Text className="text-sm text-typography-600 dark:text-typography-400">
+        <VStack className="items-center mt-4">
+          <Text className="text-sm text-typography-600 dark:text-typography-400 font-poppins-medium">
             Tahap {state.currentStep}:
           </Text>
-          <Text className="text-base font-medium text-primary-500">
+          <Text className="text-2xl text-primary-500 font-poppins-bold">
             {getStepTitle(state.currentStep)}
           </Text>
         </VStack>
@@ -271,17 +219,30 @@ export default function SellerOnboardingModule() {
         <VStack className="flex-1">{renderStep()}</VStack>
 
         {/* Footer with Next button */}
-        <VStack className="px-6 py-4 border-t border-outline-200 dark:border-outline-700 bg-white dark:bg-background-950">
-          <Button
-            onPress={state.currentStep === 4 ? handleComplete : nextStep}
-            disabled={!canProceed() || state.isSubmitting}
-            size="lg"
-            action={canProceed() ? "primary" : "default"}
+        <VStack className="px-6 py-4 border-t border-outline-200 dark:border-outline-700">
+          <Grid
+            className="gap-2"
+            _extra={{
+              className: "grid-cols-2",
+            }}
           >
-            <ButtonText className="font-semibold">
-              {getNextButtonText()}
-            </ButtonText>
-          </Button>
+            <GridItem _extra={{ className: "flex-1" }}>
+              <Button onPress={handleBack} action="secondary" size="lg">
+                <ButtonText className="text-white">Kembali</ButtonText>
+              </Button>
+            </GridItem>
+            <GridItem _extra={{ className: "flex-1" }}>
+              <Button
+                onPress={state.currentStep === 4 ? handleComplete : nextStep}
+                disabled={!canProceed() || state.isSubmitting}
+                size="lg"
+              >
+                <ButtonText className="font-semibold">
+                  {getNextButtonText()}
+                </ButtonText>
+              </Button>
+            </GridItem>
+          </Grid>
         </VStack>
       </VStack>
     </SafeAreaView>

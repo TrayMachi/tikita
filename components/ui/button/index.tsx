@@ -37,13 +37,13 @@ cssInterop(PrimitiveIcon, {
 });
 
 const buttonStyle = tva({
-  base: 'group/button rounded-xl shadow-lg bg-primary-500 flex-row items-center justify-center data-[focus-visible=true]:web:outline-none data-[focus-visible=true]:web:ring-2 data-[disabled=true]:opacity-40 gap-2',
+  base: 'group/button rounded-xl shadow-lg bg-primary-500 flex-row items-center justify-center data-[focus-visible=true]:web:outline-none data-[focus-visible=true]:web:ring-2 data-[disabled=true]:opacity-40 gap-2 disabled:opacity-50',
   variants: {
     action: {
       primary:
         'bg-primary-500 data-[hover=true]:bg-primary-600 data-[active=true]:bg-primary-700 border-primary-300 data-[hover=true]:border-primary-400 data-[active=true]:border-primary-500 data-[focus-visible=true]:web:ring-indicator-info',
       secondary:
-        'bg-secondary-500 border-secondary-300 data-[hover=true]:bg-secondary-600 data-[hover=true]:border-secondary-400 data-[active=true]:bg-secondary-700 data-[active=true]:border-secondary-700 data-[focus-visible=true]:web:ring-indicator-info',
+        'bg-orange-500 border-orange-300 text-white data-[hover=true]:bg-orange-600 data-[hover=true]:border-orange-400 data-[active=true]:bg-orange-700 data-[active=true]:border-orange-700 data-[focus-visible=true]:web:ring-indicator-info',
       positive:
         'bg-success-500 border-success-300 data-[hover=true]:bg-success-600 data-[hover=true]:border-success-400 data-[active=true]:bg-success-700 data-[active=true]:border-success-500 data-[focus-visible=true]:web:ring-indicator-info',
       negative:
@@ -125,7 +125,7 @@ const buttonTextStyle = tva({
       primary:
         'text-primary-600 data-[hover=true]:text-primary-600 data-[active=true]:text-primary-700',
       secondary:
-        'text-typography-500 data-[hover=true]:text-typography-600 data-[active=true]:text-typography-700',
+        'text-white data-[hover=true]:text-white data-[active=true]:text-white',
       positive:
         'text-success-600 data-[hover=true]:text-success-600 data-[active=true]:text-success-700',
       negative:
@@ -236,7 +236,7 @@ const buttonIconStyle = tva({
       variant: 'solid',
       action: 'secondary',
       class:
-        'text-typography-800 data-[hover=true]:text-typography-800 data-[active=true]:text-typography-800',
+        'text-white data-[hover=true]:text-white data-[active=true]:text-white',
     },
     {
       variant: 'solid',
