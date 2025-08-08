@@ -14,7 +14,7 @@ export default function LogoutSection() {
 
   return (
     <View className="flex-row justify-between items-center px-4">
-      <Button 
+      <Button
         onPress={handleLogout}
         variant="solid"
         action="negative"

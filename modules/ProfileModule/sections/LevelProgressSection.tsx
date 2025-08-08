@@ -13,9 +13,7 @@ export default function LevelProgressSection() {
       </Progress>
       <View className="flex-row justify-between">
         <Text className="text-sm text-yellow-600 font-medium">50%</Text>
-        <Text className="text-sm text-gray-600 dark:text-gray-400">
-          Silver
-        </Text>
+        <Text className="text-sm text-gray-600 dark:text-gray-400">Silver</Text>
       </View>
     </View>
   );

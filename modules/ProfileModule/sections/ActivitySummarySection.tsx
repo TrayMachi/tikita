@@ -12,16 +12,12 @@ export default function ActivitySummarySection() {
       <View className="flex-row gap-x-3">
         <Box className="flex-1 bg-red-100 p-4 rounded-lg items-center">
           <FontAwesome name="heart" size={20} color="#EF4444" />
-          <Text className="text-2xl font-bold text-gray-900 mt-2">
-            10
-          </Text>
+          <Text className="text-2xl font-bold text-gray-900 mt-2">10</Text>
           <Text className="text-sm text-gray-600">Wishlist</Text>
         </Box>
         <Box className="flex-1 bg-orange-100 p-4 rounded-lg items-center">
           <FontAwesome name="ticket" size={20} color="#F97316" />
-          <Text className="text-2xl font-bold text-gray-900 mt-2">
-            10
-          </Text>
+          <Text className="text-2xl font-bold text-gray-900 mt-2">10</Text>
           <Text className="text-sm text-gray-600">Ticket Dibeli</Text>
         </Box>
         <Box className="flex-1 bg-yellow-100 p-4 rounded-lg items-center">
