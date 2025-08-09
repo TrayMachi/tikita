@@ -1,13 +1,12 @@
 export const kategoriOptions = [
   { label: "Konser", value: "konser" },
-  { label: "Festival", value: "festival" },
-  { label: "Pertunjukan", value: "pertunjukan" },
-  { label: "Stand Up Comedy", value: "stand-up-comedy" },
-  { label: "Teater", value: "teater" },
+  { label: "Expo Pameran", value: "expo-pameran" },
   { label: "Olahraga", value: "olahraga" },
   { label: "Seminar", value: "seminar" },
-  { label: "Workshop", value: "workshop" },
-  { label: "Lainnya", value: "lainnya" },
+  { label: "Seni & Pertunjukan", value: "seni-pertunjukan" },
+  { label: "Film", value: "film" },
+  { label: "Tempat Rekreasi", value: "tempat-rekreasi" },
+  { label: "Akomodasi", value: "akomodasi" },
 ];
 
 export const tipeTicketOptions = [

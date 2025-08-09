@@ -181,7 +181,7 @@ export const SellerAddTicketModule = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [3, 4],
+        aspect: type === "thumbnail" ? [4, 3] : [9, 16],
         quality: 0.8,
       });
 
@@ -632,7 +632,7 @@ export const SellerAddTicketModule = () => {
                     {isLoadingTicket ? "Mengunggah..." : "Upload Foto Tiket"}
                   </Text>
                   <Text className="text-xs text-typography-500 text-center px-4">
-                    Foto tiket yang jelas dan dapat dibaca
+                    Foto tiket yang jelas dan dapat dibaca (9:16)
                   </Text>
                 </VStack>
               </Pressable>
@@ -697,7 +697,7 @@ export const SellerAddTicketModule = () => {
                       : "Upload Gambar Thumbnail"}
                   </Text>
                   <Text className="text-xs text-typography-500 text-center px-4">
-                    Gambar menarik untuk mempromosikan event Anda (3:4)
+                    Gambar menarik untuk mempromosikan event Anda (4:3)
                   </Text>
                 </VStack>
               </Pressable>

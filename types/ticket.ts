@@ -15,6 +15,28 @@ export interface Ticket {
   premium: boolean;
 }
 
+// Database ticket interface matching Supabase schema
+export interface TicketDB {
+  id: string;
+  name: string;
+  category: string;
+  city: string;
+  location: string;
+  date: string | null;
+  time: string | null;
+  ticket_type: string;
+  seat_type: string;
+  ticket_url: string | null;
+  thumbnail: string | null;
+  price: number;
+  is_price_drop: boolean;
+  price_drop: string | null;
+  is_premium: boolean;
+  seller_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TicketFormData {
   namaEvent: string;
   kategori: string;
@@ -47,3 +69,27 @@ export interface FormErrors {
   countdownPriceDrops?: string;
   premium?: string;
 }
+
+export const kategori = [
+  { label: "Konser", value: "konser" },
+  { label: "Festival", value: "festival" },
+  { label: "Pertunjukan", value: "pertunjukan" },
+  { label: "Stand Up Comedy", value: "stand-up-comedy" },
+  { label: "Teater", value: "teater" },
+  { label: "Olahraga", value: "olahraga" },
+  { label: "Seminar", value: "seminar" },
+  { label: "Workshop", value: "workshop" },
+  { label: "Lainnya", value: "lainnya" },
+];
+
+export const tipeTicket = [
+    { label: "Fisik", value: "fisik" },
+    { label: "Digital", value: "digital" },
+  ];
+  
+  export const tipeSeat = [
+    { label: "Reserved Seat (Kursi Bernopmor)", value: "reserved" },
+    { label: "Free Seating (Bebas Duduk)", value: "free" },
+    { label: "Standing (Berdiri)", value: "standing" },
+  ];
+  

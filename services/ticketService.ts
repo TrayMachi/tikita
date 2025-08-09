@@ -1,5 +1,5 @@
 import { supabase } from "@/utils/supabase";
-import { TicketFormData } from "@/types/ticket";
+import { TicketFormData, TicketDB } from "@/types/ticket";
 import * as FileSystem from "expo-file-system";
 import { decode } from "base64-arraybuffer";
 
@@ -145,6 +145,114 @@ export async function updateTicketImages(
     return data;
   } catch (error) {
     console.error("Error updating ticket images:", error);
+    throw error;
+  }
+}
+
+// Get all tickets except the current user's tickets
+export async function getAllTickets(
+  currentUserId?: string
+): Promise<TicketDB[]> {
+  try {
+    let query = supabase
+      .from("ticket")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    // Exclude current user's tickets if userId is provided
+    if (currentUserId) {
+      query = query.neq("seller_id", currentUserId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    throw error;
+  }
+}
+
+// Get premium tickets for flash ticket section
+export async function getPremiumTickets(
+  currentUserId?: string
+): Promise<TicketDB[]> {
+  try {
+    let query = supabase
+      .from("ticket")
+      .select("*")
+      .eq("is_premium", true)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    // Exclude current user's tickets if userId is provided
+    if (currentUserId) {
+      query = query.neq("seller_id", currentUserId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching premium tickets:", error);
+    throw error;
+  }
+}
+
+// Search tickets by name or category
+export async function searchTickets(
+  searchTerm: string,
+  currentUserId?: string
+): Promise<TicketDB[]> {
+  try {
+    let query = supabase
+      .from("ticket")
+      .select("*")
+      .or(
+        `name.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`
+      )
+      .order("created_at", { ascending: false });
+
+    // Exclude current user's tickets if userId is provided
+    if (currentUserId) {
+      query = query.neq("seller_id", currentUserId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error searching tickets:", error);
+    throw error;
+  }
+}
+
+// Get tickets by category
+export async function getTicketsByCategory(
+  category: string,
+  currentUserId?: string
+): Promise<TicketDB[]> {
+  try {
+    let query = supabase
+      .from("ticket")
+      .select("*")
+      .eq("category", category)
+      .order("created_at", { ascending: false });
+
+    // Exclude current user's tickets if userId is provided
+    if (currentUserId) {
+      query = query.neq("seller_id", currentUserId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching tickets by category:", error);
     throw error;
   }
 }
