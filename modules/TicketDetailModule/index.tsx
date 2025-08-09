@@ -7,29 +7,28 @@ import { getTicketById } from "@/services/ticketService";
 import { TicketDB } from "@/types/ticket";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Icon } from "@/components/ui/icon";
-import {
-    ArrowLeft,
-    Share2,
-    ShoppingCart
-} from "lucide-react-native";
+import { ArrowLeft, Share2, ShoppingCart } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    ImageBackground,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    View,
+  Alert,
+  ImageBackground,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
 import TicketDetailBottomSheet, {
-    TicketDetailBottomSheetRef,
+  TicketDetailBottomSheetRef,
 } from "./elements/TicketDetailBottomSheet";
 import { formatPrice } from "@/lib/utils";
-
+import { useAuth } from "@/contexts/AuthContext";
+import { checkSellerStatus } from "@/services/sellerService";
 
 export default function TicketDetailModule() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const [ticket, setTicket] = useState<TicketDB | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,12 +66,20 @@ export default function TicketDetailModule() {
     fetchTicket();
   }, [id]);
 
-  const handleBuyTicket = (ticket: TicketDB) => {
-    console.log("Buy ticket:", ticket.id);
-    // Navigate to payment screen or show payment modal
-    // router.push(`/payment/${ticket.id}`);
-  };
+  const handleBuyTicket = async (ticket: TicketDB) => {
+    if (!user?.id) {
+      Alert.alert("Silakan login terlebih dahulu");
+      return;
+    }
 
+    const seller = await checkSellerStatus(user.id);
+    if (ticket.seller_id === seller?.id) {
+      Alert.alert("Anda tidak dapat membeli tiket yang Anda jual");
+      return;
+    }
+
+    router.push(`/buy/${ticket.id}`);
+  };
 
   if (loading) {
     return (

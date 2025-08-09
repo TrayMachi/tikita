@@ -1,68 +1,66 @@
-import React, { useState } from "react";
-import { ScrollView, Alert, Pressable, Text, SafeAreaView } from "react-native";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { DatePicker } from "@/components/ui/DatePicker";
 import {
   FormControl,
-  FormControlLabel,
-  FormControlLabelText,
   FormControlError,
   FormControlErrorText,
+  FormControlLabel,
+  FormControlLabelText,
 } from "@/components/ui/form-control";
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
+import { Image } from "@/components/ui/image";
 import { Input, InputField } from "@/components/ui/input";
+import { LinearGradient } from "@/components/ui/LinearGradient";
 import {
   Select,
-  SelectTrigger,
-  SelectInput,
-  SelectIcon,
-  SelectPortal,
   SelectBackdrop,
   SelectContent,
   SelectDragIndicator,
   SelectDragIndicatorWrapper,
+  SelectIcon,
+  SelectInput,
   SelectItem,
+  SelectPortal,
   SelectScrollView,
+  SelectTrigger,
 } from "@/components/ui/select";
-import { Button, ButtonText, ButtonIcon } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { Image } from "@/components/ui/image";
-import { useAuth } from "@/contexts/AuthContext";
-import * as ImagePicker from "expo-image-picker";
-import {
-  Camera,
-  Upload,
-  ChevronDown,
-  X,
-  Check,
-  Megaphone,
-  ArrowLeft,
-  ArrowRight,
-} from "lucide-react-native";
-import { DatePicker } from "@/components/ui/DatePicker";
-import { TimePicker } from "@/components/ui/TimePicker";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { router, Stack } from "expo-router";
 import {
   Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
 } from "@/components/ui/slider";
-import { TicketFormData, FormErrors } from "@/types/ticket";
-import {
-  kategoriOptions,
-  tipeTicketOptions,
-  tipeSeatOptions,
-} from "./constant";
+import { TimePicker } from "@/components/ui/TimePicker";
+import { VStack } from "@/components/ui/vstack";
+import { useAuth } from "@/contexts/AuthContext";
+import { checkSellerStatus } from "@/services/sellerService";
 import {
   createTicket,
+  updateTicketImages,
   uploadTicketImage,
   uploadTicketThumbnail,
-  updateTicketImages,
 } from "@/services/ticketService";
-import { checkSellerStatus } from "@/services/sellerService";
-import { LinearGradient } from "@/components/ui/LinearGradient";
+import { FormErrors, TicketFormData } from "@/types/ticket";
+import * as ImagePicker from "expo-image-picker";
+import { router, Stack } from "expo-router";
+import {
+  ArrowRight,
+  Camera,
+  ChevronDown,
+  Megaphone,
+  Upload,
+  X
+} from "lucide-react-native";
+import React, { useState } from "react";
+import { Alert, Pressable, SafeAreaView, ScrollView, Text } from "react-native";
+import {
+  kategoriOptions,
+  tipeSeatOptions,
+  tipeTicketOptions,
+} from "./constant";
 
 export const SellerAddTicketModule = () => {
   const { user } = useAuth();

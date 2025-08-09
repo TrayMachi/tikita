@@ -1,6 +1,5 @@
 import React from "react";
 import { Pressable } from "react-native";
-import { Box } from "@/components/ui/box";
 import { Icon } from "@/components/ui/icon";
 import { Check } from "lucide-react-native";
 
@@ -23,12 +22,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     sm: "w-4 h-4",
     md: "w-5 h-5",
     lg: "w-6 h-6",
-  };
-
-  const iconSizes = {
-    sm: 14,
-    md: 16,
-    lg: 18,
   };
 
   return (
