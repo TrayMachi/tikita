@@ -37,3 +37,28 @@ export function validatePassword(password: string): {
     errors,
   };
 }
+
+
+export const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
+
+export const formatDate = (dateString: string | null) => {
+  if (!dateString) return "TBA";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+export const formatTime = (timeString: string | null) => {
+  if (!timeString) return "TBA";
+  return timeString.slice(0, 5); // HH:MM format
+};

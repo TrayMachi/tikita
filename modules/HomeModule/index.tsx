@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, RefreshControl } from "react-native";
+import { useRouter } from "expo-router";
 import { supabase } from "@/utils/supabase";
 import { TicketDB } from "@/types/ticket";
 import {
@@ -13,6 +14,7 @@ import FlashTicketSection from "./sections/FlashTicketSection";
 import TopEventsSection from "./sections/TopEventsSection";
 
 export default function HomeModule() {
+  const router = useRouter();
   const [tickets, setTickets] = useState<TicketDB[]>([]);
   const [premiumTickets, setPremiumTickets] = useState<TicketDB[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -100,9 +102,7 @@ export default function HomeModule() {
 
   // Handle ticket press
   const handleTicketPress = (ticket: TicketDB) => {
-    // Navigate to ticket detail
-    console.log("Ticket pressed:", ticket.id);
-    // Implement navigation to ticket detail screen
+    router.push(`/ticket/${ticket.id}`);
   };
 
   // Handle flash ticket see all

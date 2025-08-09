@@ -256,3 +256,29 @@ export async function getTicketsByCategory(
     throw error;
   }
 }
+
+// Get ticket by ID
+export async function getTicketById(
+  ticketId: string
+): Promise<TicketDB | null> {
+  try {
+    const { data, error } = await supabase
+      .from("ticket")
+      .select("*")
+      .eq("id", ticketId)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        // No rows returned
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching ticket by ID:", error);
+    throw error;
+  }
+}
