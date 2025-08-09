@@ -7,6 +7,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Import Google Fonts
 import {
@@ -66,11 +67,13 @@ export default function RootLayout() {
   }
 
   return (
-    <GluestackUIProvider mode="light">
-      <AuthProvider>
-        <RootLayoutNav />
-      </AuthProvider>
-    </GluestackUIProvider>
+    <GestureHandlerRootView>
+      <GluestackUIProvider mode="light">
+        <AuthProvider>
+          <RootLayoutNav />
+        </AuthProvider>
+      </GluestackUIProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -81,8 +84,14 @@ function RootLayoutNav() {
         <Stack.Screen name="splash" options={{ headerShown: false }} />
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
         <Stack.Screen name="auth/register" options={{ headerShown: false }} />
-        <Stack.Screen name="seller/onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="seller/addticket" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="seller/onboarding"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="seller/addticket"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       </Stack>

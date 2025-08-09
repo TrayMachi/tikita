@@ -39,3 +39,5 @@ yarn-error.*
 
 /app/generated/prisma
 .cursor
+ios
+android
