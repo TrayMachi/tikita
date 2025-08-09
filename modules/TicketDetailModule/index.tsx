@@ -34,12 +34,9 @@ export default function TicketDetailModule() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Bottom sheet ref
   const bottomSheetRef = useRef<TicketDetailBottomSheetRef>(null);
 
   useEffect(() => {
-    console.log("TicketDetailModule mounted with ID:", id);
-
     const fetchTicket = async () => {
       if (!id) {
         console.log("No ticket ID provided");
@@ -50,21 +47,17 @@ export default function TicketDetailModule() {
 
       try {
         setLoading(true);
-        console.log("Fetching ticket with ID:", id);
         const ticketData = await getTicketById(id);
 
         if (!ticketData) {
-          console.log("Ticket not found for ID:", id);
           setError("Ticket not found");
         } else {
-          console.log("Ticket loaded successfully:", ticketData.name);
           setTicket(ticketData);
           setTimeout(() => {
             bottomSheetRef.current?.present(ticketData);
           }, 200);
         }
       } catch (err) {
-        console.error("Error fetching ticket:", err);
         setError("Failed to load ticket details");
       } finally {
         setLoading(false);
