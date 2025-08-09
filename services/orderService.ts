@@ -18,8 +18,6 @@ export const createOrder = async (order: OrderForm) => {
       updated_at: new Date().toISOString(),
     };
 
-    console.log("Attempting to create order with data:", orderData);
-
     const { data, error } = await supabase
       .from("orders")
       .insert(orderData)
@@ -36,7 +34,11 @@ export const createOrder = async (order: OrderForm) => {
       throw new Error("Order creation failed - no data returned");
     }
 
-    console.log("Order created successfully:", data);
+    await supabase
+      .from("ticket")
+      .update({ sold: true })
+      .eq("id", order.ticketId);
+
     return data as OrderDB;
   } catch (error) {
     console.error("Error creating order:", error);

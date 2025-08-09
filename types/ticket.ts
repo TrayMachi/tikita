@@ -35,6 +35,7 @@ export interface TicketDB {
   seller_id: string;
   created_at: string;
   updated_at: string;
+  sold: boolean;
 }
 
 export interface TicketFormData {
