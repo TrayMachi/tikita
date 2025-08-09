@@ -1,22 +1,34 @@
 import { supabase } from "@/utils/supabase";
-import { Ticket, TicketFormData } from "@/types/ticket";
+import { TicketFormData } from "@/types/ticket";
+import * as FileSystem from "expo-file-system";
+import { decode } from "base64-arraybuffer";
 
 export async function createTicket(
   ticketFormData: TicketFormData,
   sellerId: string
 ) {
   try {
+    const formatDate = (date: Date | null): string | null => {
+      if (!date) return null;
+      return date.toISOString().split("T")[0]; // YYYY-MM-DD format
+    };
+
+    const formatTime = (time: Date | null): string | null => {
+      if (!time) return null;
+      return time.toTimeString().split(" ")[0]; // HH:MM:SS format
+    };
+
     const ticketData = {
       name: ticketFormData.namaEvent,
       category: ticketFormData.kategori,
       city: ticketFormData.kotaEvent,
       location: ticketFormData.lokasi,
-      date: ticketFormData.tanggal,
-      time: ticketFormData.waktu,
+      date: formatDate(ticketFormData.tanggal),
+      time: formatTime(ticketFormData.waktu),
       ticket_type: ticketFormData.tipeTicket,
       seat_type: ticketFormData.tipeSeat,
-      ticket_url: ticketFormData.uploadTicket, // Will be updated later with uploaded URL
-      thumbnail: ticketFormData.gambarThumbnail, // Will be updated later with uploaded URL
+      ticket_url: null,
+      thumbnail: null,
       price: ticketFormData.price,
       is_price_drop: ticketFormData.enableCountdownPriceDrop,
       price_drop: JSON.stringify(ticketFormData.countdownPriceDrops),
@@ -29,9 +41,7 @@ export async function createTicket(
       .insert(ticketData)
       .select()
       .single();
-    if (error) {
-      throw error;
-    }
+
     return data;
   } catch (error) {
     console.error("Error creating ticket:", error);
@@ -41,21 +51,35 @@ export async function createTicket(
 
 export async function uploadTicketImage(fileUri: string, ticketId: string) {
   try {
-    // Convert React Native URI to blob for Supabase upload
-    const response = await fetch(fileUri);
-    const blob = await response.blob();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("User must be authenticated to upload images");
+    }
 
-    const fileExt = fileUri.split(".").pop() || "jpg";
-    const fileName = `${ticketId}_${Date.now()}.${fileExt}`;
-    const filePath = `ticket/${fileName}`;
+    const fileName = `${user.id}_${ticketId}_${Date.now()}.jpg`;
+    const filePath = fileName;
+
+    const base64 = await FileSystem.readAsStringAsync(fileUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const arrayBuffer = decode(base64);
 
     const { error: uploadError } = await supabase.storage
       .from("ticket")
-      .upload(filePath, blob);
-    if (uploadError) throw uploadError;
+      .upload(filePath, arrayBuffer, {
+        contentType: "image/jpeg",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      throw uploadError;
+    }
 
     const { data } = supabase.storage.from("ticket").getPublicUrl(filePath);
-
     return data.publicUrl;
   } catch (error) {
     console.error("Error uploading ticket image:", error);
@@ -65,21 +89,35 @@ export async function uploadTicketImage(fileUri: string, ticketId: string) {
 
 export async function uploadTicketThumbnail(fileUri: string, ticketId: string) {
   try {
-    // Convert React Native URI to blob for Supabase upload
-    const response = await fetch(fileUri);
-    const blob = await response.blob();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("User must be authenticated to upload images");
+    }
 
-    const fileExt = fileUri.split(".").pop() || "jpg";
-    const fileName = `${ticketId}_${Date.now()}.${fileExt}`;
-    const filePath = `thumbnail/${fileName}`;
+    const fileName = `${user.id}_${ticketId}_${Date.now()}.jpg`;
+    const filePath = fileName;
+
+    const base64 = await FileSystem.readAsStringAsync(fileUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const arrayBuffer = decode(base64);
 
     const { error: uploadError } = await supabase.storage
       .from("thumbnail")
-      .upload(filePath, blob);
-    if (uploadError) throw uploadError;
+      .upload(filePath, arrayBuffer, {
+        contentType: "image/jpeg",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      throw uploadError;
+    }
 
     const { data } = supabase.storage.from("thumbnail").getPublicUrl(filePath);
-
     return data.publicUrl;
   } catch (error) {
     console.error("Error uploading ticket thumbnail:", error);

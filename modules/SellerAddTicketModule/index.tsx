@@ -28,13 +28,21 @@ import { Button, ButtonText, ButtonIcon } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Image } from "@/components/ui/image";
 import { useAuth } from "@/contexts/AuthContext";
-
 import * as ImagePicker from "expo-image-picker";
-import { Camera, Upload, ChevronDown, X, Check } from "lucide-react-native";
+import {
+  Camera,
+  Upload,
+  ChevronDown,
+  X,
+  Check,
+  Megaphone,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react-native";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Checkbox } from "@/components/ui/Checkbox";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import {
   Slider,
   SliderFilledTrack,
@@ -54,6 +62,7 @@ import {
   updateTicketImages,
 } from "@/services/ticketService";
 import { checkSellerStatus } from "@/services/sellerService";
+import { LinearGradient } from "@/components/ui/LinearGradient";
 
 export const SellerAddTicketModule = () => {
   const { user } = useAuth();
@@ -212,16 +221,30 @@ export const SellerAddTicketModule = () => {
     }
 
     try {
-      const seller = await checkSellerStatus(user?.id || "");
-      if (!seller) {
-        Alert.alert("Error", "Seller tidak ditemukan");
+      if (!user) {
+        Alert.alert("Error", "Anda harus login terlebih dahulu");
         return;
       }
 
-      // First create the ticket to get the ticket ID
+      const seller = await checkSellerStatus(user.id);
+      if (!seller) {
+        Alert.alert(
+          "Error",
+          "Seller tidak ditemukan. Silakan daftar sebagai seller terlebih dahulu."
+        );
+        return;
+      }
+
+      if (!seller.isVerified) {
+        Alert.alert(
+          "Error",
+          "Akun seller Anda belum terverifikasi. Hubungi admin untuk verifikasi."
+        );
+        return;
+      }
+
       const ticket = await createTicket(formData, seller.id);
 
-      // Then upload images using the ticket ID
       const ticketImageUrl = await uploadTicketImage(
         formData.uploadTicket,
         ticket.id
@@ -231,7 +254,6 @@ export const SellerAddTicketModule = () => {
         ticket.id
       );
 
-      // Update ticket with the uploaded image URLs
       await updateTicketImages(ticket.id, ticketImageUrl, thumbnailUrl);
 
       console.log("Ticket created successfully:", {
@@ -240,9 +262,26 @@ export const SellerAddTicketModule = () => {
         thumbnailUrl,
       });
       Alert.alert("Sukses", "Tiket berhasil ditambahkan!");
-    } catch (error) {
+      router.push("/seller/addticket");
+    } catch (error: any) {
       console.error("Error creating ticket:", error);
-      Alert.alert("Error", "Gagal menambahkan tiket. Silakan coba lagi.");
+
+      const errorMessage =
+        error?.message || "Gagal menambahkan tiket. Silakan coba lagi.";
+
+      if (errorMessage.includes("Permission denied")) {
+        Alert.alert(
+          "Error",
+          "Anda tidak memiliki izin untuk membuat tiket. Pastikan akun seller Anda sudah terverifikasi."
+        );
+      } else if (errorMessage.includes("authenticated")) {
+        Alert.alert(
+          "Error",
+          "Sesi Anda telah berakhir. Silakan login kembali."
+        );
+      } else {
+        Alert.alert("Error", errorMessage);
+      }
     }
   };
 
@@ -545,193 +584,6 @@ export const SellerAddTicketModule = () => {
             )}
           </FormControl>
 
-          {/* Price Slider */}
-          <FormControl isInvalid={!!errors.price}>
-            <FormControlLabel>
-              <FormControlLabelText>Harga Tiket</FormControlLabelText>
-            </FormControlLabel>
-
-            <VStack space="md">
-              <Box className="items-center">
-                <Text className="text-2xl font-bold text-primary-500 dark:text-primary-400">
-                  Rp {formData.price.toLocaleString("id-ID")}
-                </Text>
-                <Text className="text-sm text-typography-500 dark:text-typography-400">
-                  Geser untuk mengatur harga
-                </Text>
-              </Box>
-
-              <VStack space="sm" className="px-2">
-                <HStack className="justify-between">
-                  <Text className="text-xs text-typography-500 dark:text-typography-400">
-                    Rp 1.000
-                  </Text>
-                  <Text className="text-xs text-typography-500 dark:text-typography-400">
-                    Rp 10.000.000
-                  </Text>
-                </HStack>
-
-                <Box className="h-12 justify-center">
-                  <Slider
-                    value={formData.price}
-                    onChange={(value: number) => {
-                      updateFormData({ price: value });
-                    }}
-                    minValue={1000}
-                    maxValue={10000000}
-                    step={1000}
-                    className="w-full"
-                  >
-                    <SliderTrack>
-                      <SliderFilledTrack />
-                    </SliderTrack>
-                    <SliderThumb />
-                  </Slider>
-                </Box>
-              </VStack>
-            </VStack>
-
-            {errors.price && (
-              <FormControlError>
-                <FormControlErrorText>{errors.price}</FormControlErrorText>
-              </FormControlError>
-            )}
-          </FormControl>
-
-          {/* Countdown Automatic Price Drop */}
-          <FormControl isInvalid={!!errors.countdownPriceDrops}>
-            <VStack space="md">
-              <HStack space="sm" className="items-center">
-                <Checkbox
-                  isChecked={formData.enableCountdownPriceDrop}
-                  onToggle={() =>
-                    updateFormData({
-                      enableCountdownPriceDrop:
-                        !formData.enableCountdownPriceDrop,
-                    })
-                  }
-                />
-                <FormControlLabel className="flex-1">
-                  <FormControlLabelText>
-                    Countdown Automatic Price Drop
-                  </FormControlLabelText>
-                </FormControlLabel>
-              </HStack>
-
-              <Text className="text-sm text-typography-500 dark:text-typography-400">
-                Otomatis turunkan harga mendekati waktu event
-              </Text>
-
-              {formData.enableCountdownPriceDrop && (
-                <VStack
-                  space="md"
-                  className="bg-background-50 dark:bg-background-900 p-4 rounded-lg border border-outline-200 dark:border-outline-700"
-                >
-                  {/* H-3 */}
-                  <HStack space="md" className="items-center">
-                    <Text className="text-sm font-medium text-typography-700 dark:text-typography-300 w-8">
-                      H-3
-                    </Text>
-                    <Text className="flex-1 text-sm text-typography-600 dark:text-typography-400">
-                      akan turun
-                    </Text>
-                    <Input
-                      variant="outline"
-                      size="sm"
-                      className="w-20 border-outline-300 dark:border-outline-600"
-                    >
-                      <InputField
-                        placeholder="10"
-                        value={
-                          formData.countdownPriceDrops[2]?.toString() || ""
-                        }
-                        onChangeText={(text) => {
-                          const newDrops = [...formData.countdownPriceDrops];
-                          newDrops[2] = parseInt(text) || 0;
-                          updateFormData({ countdownPriceDrops: newDrops });
-                        }}
-                        keyboardType="numeric"
-                      />
-                    </Input>
-                    <Text className="text-sm text-typography-600 dark:text-typography-400">
-                      % dari harga awal
-                    </Text>
-                  </HStack>
-
-                  {/* H-2 */}
-                  <HStack space="md" className="items-center">
-                    <Text className="text-sm font-medium text-typography-700 dark:text-typography-300 w-8">
-                      H-2
-                    </Text>
-                    <Text className="flex-1 text-sm text-typography-600 dark:text-typography-400">
-                      akan turun
-                    </Text>
-                    <Input
-                      variant="outline"
-                      size="sm"
-                      className="w-20 border-outline-300 dark:border-outline-600"
-                    >
-                      <InputField
-                        placeholder="15"
-                        value={
-                          formData.countdownPriceDrops[1]?.toString() || ""
-                        }
-                        onChangeText={(text) => {
-                          const newDrops = [...formData.countdownPriceDrops];
-                          newDrops[1] = parseInt(text) || 0;
-                          updateFormData({ countdownPriceDrops: newDrops });
-                        }}
-                        keyboardType="numeric"
-                      />
-                    </Input>
-                    <Text className="text-sm text-typography-600 dark:text-typography-400">
-                      % dari harga awal
-                    </Text>
-                  </HStack>
-
-                  {/* H-1 */}
-                  <HStack space="md" className="items-center">
-                    <Text className="text-sm font-medium text-typography-700 dark:text-typography-300 w-8">
-                      H-1
-                    </Text>
-                    <Text className="flex-1 text-sm text-typography-600 dark:text-typography-400">
-                      akan turun
-                    </Text>
-                    <Input
-                      variant="outline"
-                      size="sm"
-                      className="w-20 border-outline-300 dark:border-outline-600"
-                    >
-                      <InputField
-                        placeholder="20"
-                        value={
-                          formData.countdownPriceDrops[0]?.toString() || ""
-                        }
-                        onChangeText={(text) => {
-                          const newDrops = [...formData.countdownPriceDrops];
-                          newDrops[0] = parseInt(text) || 0;
-                          updateFormData({ countdownPriceDrops: newDrops });
-                        }}
-                        keyboardType="numeric"
-                      />
-                    </Input>
-                    <Text className="text-sm text-typography-600 dark:text-typography-400">
-                      % dari harga awal
-                    </Text>
-                  </HStack>
-                </VStack>
-              )}
-            </VStack>
-
-            {errors.countdownPriceDrops && (
-              <FormControlError>
-                <FormControlErrorText>
-                  {errors.countdownPriceDrops}
-                </FormControlErrorText>
-              </FormControlError>
-            )}
-          </FormControl>
-
           {/* Upload Tiket */}
           <FormControl isInvalid={!!errors.uploadTicket}>
             <FormControlLabel>
@@ -860,29 +712,280 @@ export const SellerAddTicketModule = () => {
             )}
           </FormControl>
 
-          {/* Submit Button */}
-          <Box className="pt-4">
-            <Button onPress={handleSubmit} size="lg">
-              <ButtonText>Tambah Tiket</ButtonText>
-            </Button>
-          </Box>
+          {/* Price Slider */}
+          <FormControl isInvalid={!!errors.price}>
+            <VStack space="md" className="border border-primary-500 rounded-xl">
+              <HStack className="bg-primary-50 justify-between p-2 rounded-t-xl">
+                <Text className="text-base font-poppins-semibold text-primary-500">
+                  Smart Pricing
+                </Text>
+                <LinearGradient
+                  className="rounded-full rounded-bl-none items-center py-1 -translate-y-4"
+                  colors={["#FD6885", "#FE9274", "#FFBB16"]}
+                  start={[0, 1]}
+                  end={[1, 0]}
+                >
+                  <Text className="text-white font-poppins-medium text-xs px-2">
+                    AI Recommendation
+                  </Text>
+                </LinearGradient>
+              </HStack>
+              <VStack className="px-4 py-2" space="md">
+                <VStack className="items-center" space="sm">
+                  <Text className="text-sm text-center text-typography-500 dark:text-typography-400">
+                    Harga ideal saat ini berdasarkan 10+ penjualan terakhir dan
+                    popularitas event
+                  </Text>
+                  <Text className="text-2xl font-bold text-[#464646]">
+                    Rp {formData.price.toLocaleString("id-ID")}
+                  </Text>
+                </VStack>
 
-          {/* Bottom spacing */}
-          <Box className="h-6" />
+                <VStack space="sm" className="px-2">
+                  <HStack className="justify-between">
+                    <Text className="text-xs text-typography-500 dark:text-typography-400">
+                      Min
+                    </Text>
+                    <Text className="text-xs text-typography-500 dark:text-typography-400">
+                      Max
+                    </Text>
+                  </HStack>
+
+                  <Box className="justify-center h-4">
+                    <Slider
+                      value={formData.price}
+                      onChange={(value: number) => {
+                        updateFormData({ price: value });
+                      }}
+                      minValue={900000}
+                      maxValue={2700000}
+                      step={1000}
+                      className="w-full"
+                    >
+                      <SliderTrack>
+                        <SliderFilledTrack />
+                      </SliderTrack>
+                      <SliderThumb />
+                    </Slider>
+                  </Box>
+                  <HStack className="justify-between">
+                    <Text className="text-xs text-typography-500 dark:text-typography-400">
+                      900.000
+                    </Text>
+                    <Text className="text-xs text-typography-500 dark:text-typography-400">
+                      2.700.000
+                    </Text>
+                  </HStack>
+                </VStack>
+              </VStack>
+            </VStack>
+
+            {errors.price && (
+              <FormControlError>
+                <FormControlErrorText>{errors.price}</FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          {/* Countdown Automatic Price Drop */}
+          <FormControl isInvalid={!!errors.countdownPriceDrops}>
+            <VStack space="md">
+              <HStack space="sm" className="items-center">
+                <FormControlLabel className="flex-1">
+                  <FormControlLabelText>
+                    Countdown Automatic Price Drop
+                  </FormControlLabelText>
+                </FormControlLabel>
+                <HStack space="sm">
+                  <Checkbox
+                    isChecked={formData.enableCountdownPriceDrop}
+                    onToggle={() =>
+                      updateFormData({
+                        enableCountdownPriceDrop:
+                          !formData.enableCountdownPriceDrop,
+                      })
+                    }
+                  />
+                  <Text className="text-sm text-primary-500 font-semibold">
+                    Aktifkan
+                  </Text>
+                </HStack>
+              </HStack>
+
+              <Text className="text-sm text-typography-500 dark:text-typography-400">
+                Tiket masih ga laku, padahal acara udah H-3 😱?{"\n"}
+                <Text className="text-primary-500 font-semibold italic">
+                  Jika diaktifkan,{" "}
+                </Text>
+                Tikita bisa turunin harga kamu secara otomatis kalau mendekati
+                hari H tiket masih belum laku
+              </Text>
+
+              <VStack
+                space="md"
+                className="bg-white p-4 rounded-xl border border-primary-500"
+              >
+                {/* H-3 */}
+                <HStack space="md" className="items-center">
+                  <Text className="text-sm font-medium text-typography-700 border border-primary-500 rounded-lg py-2 px-3 bg-primary-50">
+                    H-3
+                  </Text>
+                  <Text className="flex-1 text-sm text-black">akan turun</Text>
+                  <Input
+                    variant="outline"
+                    size="sm"
+                    className="w-20 border-outline-300 dark:border-outline-600"
+                    isDisabled={!formData.enableCountdownPriceDrop}
+                  >
+                    <InputField
+                      placeholder="10"
+                      value={formData.countdownPriceDrops[2]?.toString() || ""}
+                      onChangeText={(text) => {
+                        const newDrops = [...formData.countdownPriceDrops];
+                        newDrops[2] = parseInt(text) || 0;
+                        updateFormData({ countdownPriceDrops: newDrops });
+                      }}
+                      keyboardType="numeric"
+                    />
+                  </Input>
+                  <Text className="text-sm text-black">% dari harga awal</Text>
+                </HStack>
+
+                {/* H-2 */}
+                <HStack space="md" className="items-center">
+                  <Text className="text-sm font-medium text-typography-700 border border-primary-500 rounded-lg py-2 px-3 bg-primary-50">
+                    H-2
+                  </Text>
+                  <Text className="flex-1 text-sm text-black">akan turun</Text>
+                  <Input
+                    variant="outline"
+                    size="sm"
+                    className="w-20 border-outline-300 dark:border-outline-600"
+                    isDisabled={!formData.enableCountdownPriceDrop}
+                  >
+                    <InputField
+                      placeholder="15"
+                      value={formData.countdownPriceDrops[1]?.toString() || ""}
+                      onChangeText={(text) => {
+                        const newDrops = [...formData.countdownPriceDrops];
+                        newDrops[1] = parseInt(text) || 0;
+                        updateFormData({ countdownPriceDrops: newDrops });
+                      }}
+                      keyboardType="numeric"
+                    />
+                  </Input>
+                  <Text className="text-sm text-black">% dari harga awal</Text>
+                </HStack>
+
+                {/* H-1 */}
+                <HStack space="md" className="items-center">
+                  <Text className="text-sm font-medium text-typography-700 border border-primary-500 rounded-lg py-2 px-3 bg-primary-50">
+                    H-1
+                  </Text>
+                  <Text className="flex-1 text-sm text-black">akan turun</Text>
+                  <Input
+                    variant="outline"
+                    size="sm"
+                    className="w-20 border-outline-300 dark:border-outline-600"
+                    isDisabled={!formData.enableCountdownPriceDrop}
+                  >
+                    <InputField
+                      placeholder="20"
+                      value={formData.countdownPriceDrops[0]?.toString() || ""}
+                      onChangeText={(text) => {
+                        const newDrops = [...formData.countdownPriceDrops];
+                        newDrops[0] = parseInt(text) || 0;
+                        updateFormData({ countdownPriceDrops: newDrops });
+                      }}
+                      keyboardType="numeric"
+                    />
+                  </Input>
+                  <Text className="text-sm text-black">% dari harga awal</Text>
+                </HStack>
+              </VStack>
+            </VStack>
+
+            {errors.countdownPriceDrops && (
+              <FormControlError>
+                <FormControlErrorText>
+                  {errors.countdownPriceDrops}
+                </FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
+          <FormControl isInvalid={!!errors.premium}>
+            <VStack space="md">
+              <HStack space="sm" className="items-center">
+                <FormControlLabel className="flex-1">
+                  <FormControlLabelText>Premium Promotion</FormControlLabelText>
+                </FormControlLabel>
+                <HStack space="sm">
+                  <Checkbox
+                    isChecked={formData.premium}
+                    onToggle={() =>
+                      updateFormData({ premium: !formData.premium })
+                    }
+                  />
+                  <Text className="text-sm text-primary-500 font-semibold">
+                    Aktifkan
+                  </Text>
+                </HStack>
+              </HStack>
+              <Text className="text-sm text-typography-500 dark:text-typography-400">
+                Tingkatkan peluang tiketmu cepat laku dengan promosi premium
+              </Text>
+              <VStack className="bg-white rounded-xl border border-primary-500">
+                <VStack className="p-4" space="sm">
+                  <Text className="text-sm text-black">
+                    - Tiketmu muncul paling atas di hasil pencarian
+                  </Text>
+                  <Text className="text-sm text-black">
+                    - Masuk fitur Last Minute Deal pada halaman utama aplikasi
+                  </Text>
+                  <Text className="text-sm text-black">
+                    - Lebih banyak dilihat, tiket lebih cepat terjual
+                  </Text>
+                </VStack>
+                <HStack className="p-2 justify-between items-center bg-primary-50 rounded-b-xl">
+                  <VStack space="xs">
+                    <Text className="text-primary-500 font-inter-medium text-base">
+                      Biaya Premium
+                    </Text>
+                    <Text className="text-orange-500 font-inter-medium text-sm">
+                      *8% dari harga tiket
+                    </Text>
+                  </VStack>
+                  <Text className="text-lg text-primary-500 font-semibold">
+                    Rp {(formData.price * 0.08).toLocaleString("id-ID")}
+                  </Text>
+                </HStack>
+              </VStack>
+            </VStack>
+          </FormControl>
         </VStack>
       </ScrollView>
-      <VStack className="px-6 py-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700">
+      <VStack space="md" className="px-6 py-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700">
+        <HStack className="justify-between border border-primary-500 rounded-lg px-4 py-2 bg-white">
+          <HStack space="sm">
+            <Icon as={Megaphone} size="md" className="text-primary-500" />
+            <Text className="text-[#464646] text-base">
+              Anda Mengaktifkan Premium Promotion
+            </Text>
+          </HStack>
+          <Icon as={ArrowRight} size="md" className="text-primary-500" />
+        </HStack>
         <HStack className="justify-between">
           <VStack space="sm">
             <Text className="text-[#7C7C7C] dark:text-typography-50 font-inter-medium text-sm">
               *8% dari harga tiket
             </Text>
             <Text className="text-primary-500 dark:text-typography-50 font-poppins-semibold text-lg">
-              Rp 100.000
+              Rp {(formData.price * 0.08).toLocaleString("id-ID")}
             </Text>
           </VStack>
 
-          <Button size="lg">
+          <Button onPress={handleSubmit} size="lg">
             <ButtonText className="font-semibold">Bayar & Jual</ButtonText>
           </Button>
         </HStack>
