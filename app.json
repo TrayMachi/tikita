@@ -4,12 +4,12 @@
     "slug": "tikita",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/LogoTikita.webp",
+    "icon": "./assets/images/IconTikita.png",
     "scheme": "tikita",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/LogoTikita.webp",
+      "image": "./assets/images/IconTikita.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/LogoTikita.webp",
+        "foregroundImage": "./assets/images/IconTikita.webp",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
