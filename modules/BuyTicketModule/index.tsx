@@ -12,6 +12,7 @@ import { Header } from "./sections/Header";
 import { Form, FormData } from "./sections/Form";
 import { useAuth } from "@/contexts/AuthContext";
 import { createOrder } from "@/services/orderService";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const BuyTicketModule = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,6 +29,7 @@ export const BuyTicketModule = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = React.useRef<{ validateForm: () => boolean }>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const fetchTicket = async () => {
@@ -227,6 +229,7 @@ export const BuyTicketModule = () => {
       <VStack
         space="md"
         className="px-6 pb-8 pt-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700"
+        style={{ paddingBottom: Math.max(insets.bottom + 16, 16) }}
       >
         <HStack className="items-center justify-between">
           <VStack space="xs">

@@ -1,21 +1,19 @@
-import React, { useState } from "react";
-import { SafeAreaView, Alert, View, Pressable } from "react-native";
-import { Stack, useRouter } from "expo-router";
-import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Text } from "react-native";
+import { Grid, GridItem } from "@/components/ui/grid";
+import { VStack } from "@/components/ui/vstack";
 import { useAuth } from "@/contexts/AuthContext";
+import StepIndicator from "@/modules/SellerOnboardingModule/elements/StepIndicator";
+import OnboardingStep3 from "@/modules/SellerOnboardingModule/sections/OnboardingStep3";
+import OnboardingStep4 from "@/modules/SellerOnboardingModule/sections/OnboardingStep4";
 import { createSeller } from "@/services/sellerService";
 import type { SellerFormData, SellerOnboardingState } from "@/types/seller";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import OnboardingStep3 from "@/modules/SellerOnboardingModule/sections/OnboardingStep3";
-import OnboardingStep4 from "@/modules/SellerOnboardingModule/sections/OnboardingStep4";
-import { Center } from "@/components/ui/center";
-import StepIndicator from "@/modules/SellerOnboardingModule/elements/StepIndicator";
+import { Stack, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Alert, Pressable, SafeAreaView, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import OnboardingStep1 from "./sections/OnboardingStep1";
 import OnboardingStep2 from "./sections/OnboardingStep2";
-import { HStack } from "@/components/ui/hstack";
-import { Grid, GridItem } from "@/components/ui/grid";
 
 function getStepTitle(step: number): string {
   switch (step) {
@@ -35,6 +33,7 @@ function getStepTitle(step: number): string {
 export default function SellerOnboardingModule() {
   const router = useRouter();
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [state, setState] = useState<SellerOnboardingState>({
     currentStep: 1,
     formData: {
@@ -199,7 +198,7 @@ export default function SellerOnboardingModule() {
         }}
       />
 
-      <VStack className="flex-1 my-7">
+      <VStack className="flex-1 my-7 bg-white dark:bg-gray-900">
         <StepIndicator currentStep={state.currentStep} totalSteps={4} />
         <VStack className="items-center mt-4">
           <Text className="text-sm text-typography-600 dark:text-typography-400 font-poppins-medium">
@@ -213,7 +212,7 @@ export default function SellerOnboardingModule() {
         <VStack className="flex-1">{renderStep()}</VStack>
 
         {/* Footer with Next button */}
-        <VStack className="px-6 py-4 border-t bg-white shadow-lg border-outline-200 dark:border-outline-700">
+        <VStack className="px-6 py-4 border-t bg-white shadow-lg border-outline-200 dark:border-outline-700" style={{ paddingBottom: Math.max(insets.bottom + 8, 8) }}>
           <Grid
             className="gap-2"
             _extra={{

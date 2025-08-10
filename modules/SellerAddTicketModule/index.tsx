@@ -61,9 +61,11 @@ import {
   tipeSeatOptions,
   tipeTicketOptions,
 } from "./constant";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const SellerAddTicketModule = () => {
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [formData, setFormData] = useState<TicketFormData>({
     namaEvent: "",
     kategori: "",
@@ -963,7 +965,7 @@ export const SellerAddTicketModule = () => {
           </FormControl>
         </VStack>
       </ScrollView>
-      <VStack space="md" className="px-6 py-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700">
+      <VStack space="md" className="px-6 py-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700" style={{ paddingBottom: Math.max(insets.bottom + 16, 16) }}>
         <HStack className="justify-between border border-primary-500 rounded-lg px-4 py-2 bg-white">
           <HStack space="sm">
             <Icon as={Megaphone} size="md" className="text-primary-500" />

@@ -19,8 +19,10 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const PaymentModule = () => {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
   const [order, setOrder] = useState<(OrderDB & TicketDB) | null>(null);
   const [loading, setLoading] = useState(true);
@@ -286,7 +288,7 @@ export const PaymentModule = () => {
           );
         })}
       </ScrollView>
-      <Button className="mx-6 mb-6">
+      <Button className="mx-6 mb-6" style={{ paddingBottom: Math.max(insets.bottom + 16, 16) }}>
         <ButtonText>Lihat Hotel</ButtonText>
       </Button>
     </ScrollView>

@@ -24,6 +24,7 @@ import TicketDetailBottomSheet, {
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { checkSellerStatus } from "@/services/sellerService";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TicketDetailModule() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,7 +33,7 @@ export default function TicketDetailModule() {
   const [ticket, setTicket] = useState<TicketDB | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<TicketDetailBottomSheetRef>(null);
 
   useEffect(() => {
@@ -156,6 +157,7 @@ export default function TicketDetailModule() {
       <VStack
         space="md"
         className="px-6 pb-8 pt-4 border-t shadow-lg bg-white border-outline-200 dark:border-outline-700"
+        style={{ paddingBottom: Math.max(insets.bottom + 16, 16) }}
       >
         <VStack space="xs">
           <Text className="text-[#7C7C7C] dark:text-typography-50 font-inter-medium text-sm">
