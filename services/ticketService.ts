@@ -282,3 +282,21 @@ export async function getTicketById(
     throw error;
   }
 }
+
+export async function getTicketBySellerId(
+  sellerId: string
+): Promise<TicketDB[]> {
+  try {
+    const { data, error } = await supabase
+      .from("ticket")
+      .select("*")
+      .eq("seller_id", sellerId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching tickets by seller ID:", error);
+    throw error;
+  }
+}

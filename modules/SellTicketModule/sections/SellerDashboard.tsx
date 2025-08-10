@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Box } from "@/components/ui/box";
@@ -13,6 +13,9 @@ import { Icon, AddIcon } from "@/components/ui/icon";
 import { Image } from "@/components/ui/image";
 import { Grid, GridItem } from "@/components/ui/grid";
 import { LinearGradient } from "@/components/ui/LinearGradient";
+import { getTicketBySellerId } from "@/services/ticketService";
+import { TicketDB } from "@/types/ticket";
+import { formatDate, formatPrice } from "@/lib/utils";
 
 interface SellerDashboardProps {
   seller?: any; // Optional - null means user is not a seller yet
@@ -20,6 +23,17 @@ interface SellerDashboardProps {
 
 export default function SellerDashboard({ seller }: SellerDashboardProps) {
   const router = useRouter();
+  const [tickets, setTickets] = useState<TicketDB[]>([]);
+  useEffect(() => {
+    const fetchTickets = async () => {
+      const tickets = await getTicketBySellerId(seller.id);
+      setTickets(tickets);
+    };
+    if (seller) {
+      fetchTickets();
+    }
+  }, [seller]);
+
   return (
     <ScrollView className="flex-1 bg-white dark:bg-background-950">
       <VStack className="px-4 py-6" space="lg">
@@ -179,32 +193,35 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
               className: "grid-cols-2",
             }}
           >
-            <GridItem
-              className="bg-white shadow-lg rounded-xl"
-              _extra={{
-                className: "flex-1",
-              }}
-            >
-              <Image
-                source={require("@/assets/images/bruno-mars.png")}
-                className="w-full h-32 object-cover rounded-t-xl"
-                alt="bruno"
-              />
-              <VStack className="gap-2 p-4">
-                <Text className="text-[#464646] font-poppins-bold text-lg mb-1">
-                  Bruno Mars Tour
-                </Text>
-                <HStack className="text-white font-bold text-lg justify-between">
-                  <Text className="text-[#464646] text-sm">
-                    22 Agustus 2025
+            {tickets.map((ticket) => (
+              <GridItem
+                key={ticket.id}
+                className="bg-white shadow-lg rounded-xl"
+                _extra={{
+                  className: "flex-1",
+                }}
+              >
+                <Image
+                  source={{ uri: ticket.thumbnail || "https://via.placeholder.com/150" }}
+                  className="w-full h-32 object-cover rounded-t-xl"
+                  alt={ticket.name}
+                />
+                <VStack className="gap-2 p-4">
+                  <Text className="text-[#464646] font-poppins-bold text-lg mb-1">
+                    {ticket.name}
                   </Text>
-                  <Text className="text-[#464646] text-sm">2 Ticket</Text>
-                </HStack>
-                <Text className="text-[#464646] font-poppins-semibold text-sm pb-4">
-                  Rp550.000
-                </Text>
-              </VStack>
-            </GridItem>
+                  <HStack className="text-white font-bold text-lg justify-between">
+                    <Text className="text-[#464646] text-sm">
+                      {formatDate(ticket.date)}
+                    </Text>
+                    <Text className="text-[#464646] text-sm">2 Ticket</Text>
+                  </HStack>
+                  <Text className="text-[#464646] font-poppins-semibold text-sm pb-4">
+                    {formatPrice(ticket.price)}
+                  </Text>
+                </VStack>
+              </GridItem>
+            ))}
 
             <GridItem
               _extra={{
