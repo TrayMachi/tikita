@@ -147,20 +147,9 @@ export function ChatListItem({
                     ? formatLastMessageTime(chat.last_message.created_at)
                     : ""}
                 </Text>
-                {chat.unread_count && chat.unread_count > 0 && (
-                  <Badge
-                    variant="solid"
-                    className="bg-primary-500 min-w-[20px] h-5 rounded-full"
-                  >
-                    <BadgeText className="text-white text-xs">
-                      {chat.unread_count > 99 ? "99+" : chat.unread_count}
-                    </BadgeText>
-                  </Badge>
-                )}
               </VStack>
             </HStack>
 
-            {/* Last Message */}
             <Text
               className="text-gray-600 dark:text-gray-400 text-sm mt-1"
               numberOfLines={1}
@@ -168,7 +157,6 @@ export function ChatListItem({
               {getLastMessageText()}
             </Text>
 
-            {/* Price Info */}
             <HStack space="sm" className="items-center justify-between mt-1">
               <HStack space="sm" className="items-center">
                 <FontAwesome name="tag" size={12} color="#6B7280" />

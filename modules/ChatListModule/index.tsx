@@ -1,22 +1,17 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Alert } from "react-native";
-import { Stack, useRouter } from "expo-router";
-import { Box } from "@/components/ui/box";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
-import { Text } from "react-native";
-import { Input, InputField } from "@/components/ui/input";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { ChatListItem } from "@/components/chat/ChatListItem";
+import { Box } from "@/components/ui/box";
+import { Input, InputField } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { VStack } from "@/components/ui/vstack";
+import { getCurrentUserId, getUserChats } from "@/services/bargainService";
 import { BargainChatWithDetails } from "@/types/bargain";
-import { getUserChats, getCurrentUserId } from "@/services/bargainService";
-import { useAuth } from "@/contexts/AuthContext";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Stack, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, Text } from "react-native";
 
 export default function ChatListModule() {
   const router = useRouter();
-  const { user } = useAuth();
   const [chats, setChats] = useState<BargainChatWithDetails[]>([]);
   const [filteredChats, setFilteredChats] = useState<BargainChatWithDetails[]>(
     []
@@ -88,35 +83,20 @@ export default function ChatListModule() {
     setSearchQuery(text);
   };
 
-  const getTabButtonStyle = (tab: typeof activeTab) => {
-    const isActive = activeTab === tab;
-    return `flex-1 py-3 px-4 rounded-lg ${
-      isActive ? "bg-primary-500" : "bg-gray-100 dark:bg-gray-800"
-    }`;
-  };
-
-  const getTabTextStyle = (tab: typeof activeTab) => {
-    const isActive = activeTab === tab;
-    return `text-center font-medium ${
-      isActive ? "text-white" : "text-gray-600 dark:text-gray-400"
-    }`;
-  };
-
   const renderEmptyState = () => {
     return (
-      <Box className="flex-1 items-center justify-center px-6 py-12">
+      <VStack
+        space="md"
+        className="flex-1 items-center justify-center px-6 py-12"
+      >
         <FontAwesome name="comments-o" size={64} color="#D1D5DB" />
         <Text className="text-gray-500 dark:text-gray-400 text-lg font-medium mt-4 text-center">
-          {searchQuery.trim()
-            ? "Tidak ada chat yang sesuai dengan pencarian"
-            : "Belum ada chat"}
+          Tidak ada chat yang sesuai
         </Text>
         <Text className="text-gray-400 dark:text-gray-500 text-sm mt-2 text-center">
-          {searchQuery.trim()
-            ? "Coba gunakan kata kunci lain"
-            : "Chat akan muncul ketika Anda mulai bernegosiasi dengan penjual"}
+          Coba gunakan kata kunci lain
         </Text>
-      </Box>
+      </VStack>
     );
   };
 
