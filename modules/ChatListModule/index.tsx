@@ -162,36 +162,6 @@ export default function ChatListModule() {
           </Input>
         </Box>
 
-        <Box className="px-4">
-          <HStack space="sm">
-            <Button
-              variant="solid"
-              className={getTabButtonStyle("all")}
-              onPress={() => setActiveTab("all")}
-            >
-              <ButtonText className={getTabTextStyle("all")}>Semua</ButtonText>
-            </Button>
-            <Button
-              variant="solid"
-              className={getTabButtonStyle("buying")}
-              onPress={() => setActiveTab("buying")}
-            >
-              <ButtonText className={getTabTextStyle("buying")}>
-                Membeli
-              </ButtonText>
-            </Button>
-            <Button
-              variant="solid"
-              className={getTabButtonStyle("selling")}
-              onPress={() => setActiveTab("selling")}
-            >
-              <ButtonText className={getTabTextStyle("selling")}>
-                Menjual
-              </ButtonText>
-            </Button>
-          </HStack>
-        </Box>
-
         <Box className="flex-1">
           {filteredChats.length === 0 ? (
             renderEmptyState()
