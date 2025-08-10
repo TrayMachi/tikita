@@ -183,6 +183,7 @@ export default function TabLayout() {
         name="foryou"
         options={{
           title: "For You",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <AnimatedTabIcon icon={Heart} color={color} focused={focused} />
           ),
