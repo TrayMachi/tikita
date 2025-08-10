@@ -172,7 +172,7 @@ export default function SellerOnboardingModule() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-950">
+    <SafeAreaView className="flex-1 bg-white">
       <Stack.Screen
         options={{
           headerShown: true,
@@ -213,19 +213,19 @@ export default function SellerOnboardingModule() {
         <VStack className="flex-1">{renderStep()}</VStack>
 
         {/* Footer with Next button */}
-        <VStack className="px-6 py-4 border-t shadow-lg border-outline-200 dark:border-outline-700">
+        <VStack className="px-6 py-4 border-t bg-white shadow-lg border-outline-200 dark:border-outline-700">
           <Grid
             className="gap-2"
             _extra={{
-              className: "grid-cols-2",
+              className: "grid-cols-2 bg-white",
             }}
           >
-            <GridItem _extra={{ className: "flex-1" }}>
+            <GridItem _extra={{ className: "flex-1 bg-white" }}>
               <Button onPress={handleBack} action="secondary" size="lg">
                 <ButtonText className="text-white">Kembali</ButtonText>
               </Button>
             </GridItem>
-            <GridItem _extra={{ className: "flex-1" }}>
+            <GridItem _extra={{ className: "flex-1 bg-white" }}>
               <Button
                 onPress={state.currentStep === 4 ? handleComplete : nextStep}
                 disabled={!canProceed() || state.isSubmitting}
