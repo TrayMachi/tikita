@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/IconTikita.webp",
+        "foregroundImage": "./assets/images/IconTikita.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
