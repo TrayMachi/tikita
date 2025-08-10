@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
@@ -24,18 +24,32 @@ interface SellerDashboardProps {
 export default function SellerDashboard({ seller }: SellerDashboardProps) {
   const router = useRouter();
   const [tickets, setTickets] = useState<TicketDB[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchTickets = async () => {
+    const tickets = await getTicketBySellerId(seller.id);
+    setTickets(tickets);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchTickets();
+    setIsRefreshing(false);
+  };
+
   useEffect(() => {
-    const fetchTickets = async () => {
-      const tickets = await getTicketBySellerId(seller.id);
-      setTickets(tickets);
-    };
     if (seller) {
       fetchTickets();
     }
   }, [seller]);
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-background-950">
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+      }
+      className="flex-1 bg-white dark:bg-background-950"
+    >
       <VStack className="px-4 py-6" space="lg">
         {/* Header with Tikita Branding */}
         <VStack space="md">
@@ -202,7 +216,9 @@ export default function SellerDashboard({ seller }: SellerDashboardProps) {
                 }}
               >
                 <Image
-                  source={{ uri: ticket.thumbnail || "https://via.placeholder.com/150" }}
+                  source={{
+                    uri: ticket.thumbnail || "https://via.placeholder.com/150",
+                  }}
                   className="w-full h-32 object-cover rounded-t-xl"
                   alt={ticket.name}
                 />
