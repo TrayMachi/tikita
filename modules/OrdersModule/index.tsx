@@ -4,7 +4,7 @@ import { ScrollView } from "react-native";
 
 export default function OrdersModule() {
   return (
-    <ScrollView className="flex-1 bg-background-0 dark:bg-background-950">
+    <ScrollView className="flex-1 bg-primary-500">
       <OrdersContentSection />
     </ScrollView>
   );
