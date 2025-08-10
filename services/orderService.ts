@@ -1,4 +1,9 @@
-import { OrderDB, OrderForm, OrderWithDetails, GetOrdersOptions } from "@/types/order";
+import {
+  OrderDB,
+  OrderForm,
+  OrderWithDetails,
+  GetOrdersOptions,
+} from "@/types/order";
 import { supabase } from "@/utils/supabase";
 import { TicketDB } from "@/types/ticket";
 
@@ -91,17 +96,18 @@ export const getOrdersBySellerId = async (
   sellerId: string,
   options: GetOrdersOptions = {}
 ): Promise<OrderWithDetails<"buyer">[]> => {
-  const { 
-    limit = 50, 
-    offset = 0, 
-    status, 
-    sortBy = 'created_at', 
-    sortOrder = 'desc' 
+  const {
+    limit = 50,
+    offset = 0,
+    status,
+    sortBy = "created_at",
+    sortOrder = "desc",
   } = options;
 
   let query = supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       *,
       ticket:ticket_id (
         id,
@@ -123,13 +129,14 @@ export const getOrdersBySellerId = async (
         id,
         full_name
       )
-    `)
+    `
+    )
     .eq("seller_id", sellerId)
-    .order(sortBy, { ascending: sortOrder === 'asc' })
+    .order(sortBy, { ascending: sortOrder === "asc" })
     .range(offset, offset + limit - 1);
 
   if (status && status.length > 0) {
-    query = query.in('status', status);
+    query = query.in("status", status);
   }
 
   const { data, error } = await query;
@@ -185,4 +192,23 @@ export const createOrder = async (order: OrderForm) => {
     console.error("Error creating order:", error);
     throw error;
   }
+};
+
+export const updateOrderStatus = async (
+  orderId: string,
+  status: "received" | "confirmed" | "onBid" | "declined"
+) => {
+  const { data, error } = await supabase
+    .from("orders")
+    .update({ status: status })
+    .eq("id", orderId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Supabase error updating order status:", error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  return data as OrderDB;
 };

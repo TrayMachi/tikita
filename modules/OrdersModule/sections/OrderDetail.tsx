@@ -20,6 +20,7 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { ProgressTimeline } from "../elements/ProgressTimeline";
+import { updateOrderStatus } from "@/services/orderService";
 
 export const OrderDetail = ({
   order,
@@ -29,6 +30,7 @@ export const OrderDetail = ({
   setDetailOrder: (order: OrderWithDetails<"seller"> | null) => void;
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
 
@@ -71,6 +73,43 @@ export const OrderDetail = ({
       default:
         return "Berikan penilaian Anda";
     }
+  };
+
+  const handleConfirmReceived = async () => {
+    Alert.alert(
+      "Confirm Receipt",
+      "Have you received your ticket and everything is correct? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: async () => {
+            setIsConfirming(true);
+            try {
+              await updateOrderStatus(order.id, "confirmed");
+              Alert.alert(
+                "Success",
+                "Order confirmed! You can now rate the seller."
+              );
+              // Update local order object to reflect the change
+              const updatedOrder = { ...order, status: "confirmed" as const };
+              setDetailOrder(updatedOrder);
+            } catch (error) {
+              console.error("Error confirming order:", error);
+              Alert.alert(
+                "Error",
+                "Failed to confirm order. Please try again."
+              );
+            } finally {
+              setIsConfirming(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleDownloadTicket = async () => {
@@ -226,7 +265,7 @@ export const OrderDetail = ({
           </HStack>
         </VStack>
       )}
-      {order.status === "received" && (
+      {order.status === "received" || order.status === "confirmed" && (
         <VStack className="bg-white rounded-xl p-4 shadow-xl" space="xs">
           <Text className="text-base font-bold italic text-[#FEA481]">
             Selamat, tiket{" "}
@@ -280,10 +319,28 @@ export const OrderDetail = ({
               </Button>
             </GridItem>
             <GridItem _extra={{ className: "flex-1" }}>
-              <Button action="secondary">
-                <ButtonText className="font-poppins-semibold text-white">
-                  Konfirmasi
-                </ButtonText>
+              <Button
+                action="secondary"
+                onPress={handleConfirmReceived}
+                disabled={isConfirming || order.status === "confirmed"}
+                className="flex-row items-center justify-center"
+              >
+                {isConfirming ? (
+                  <>
+                    <ActivityIndicator
+                      size="small"
+                      color="white"
+                      className="mr-2"
+                    />
+                    <ButtonText className="font-poppins-semibold text-white">
+                      Confirming...
+                    </ButtonText>
+                  </>
+                ) : (
+                  <ButtonText className="font-poppins-semibold text-white">
+                    Konfirmasi
+                  </ButtonText>
+                )}
               </Button>
             </GridItem>
           </Grid>

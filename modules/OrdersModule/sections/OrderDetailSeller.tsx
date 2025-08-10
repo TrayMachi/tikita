@@ -17,6 +17,7 @@ import { Grid, GridItem } from "@/components/ui/grid";
 import { Button, ButtonText } from "@/components/ui/button";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { ProgressTimeline } from "../elements/ProgressTimeline";
+import { updateOrderStatus } from "@/services/orderService";
 import { Image } from "@/components/ui/image";
 
 export const OrderDetailSeller = ({
@@ -42,10 +43,12 @@ export const OrderDetailSeller = ({
           onPress: async () => {
             setIsProcessing(true);
             try {
-              // Here you would typically call your API to update order status
+              await updateOrderStatus(order.id, "received");
               Alert.alert("Success", "Order has been confirmed!");
-              // Update local state or refetch orders
+              const updatedOrder = { ...order, status: "received" as const };
+              setDetailOrder(updatedOrder);
             } catch (error) {
+              console.error("Error confirming order:", error);
               Alert.alert(
                 "Error",
                 "Failed to confirm order. Please try again."
@@ -74,41 +77,13 @@ export const OrderDetailSeller = ({
           onPress: async () => {
             setIsProcessing(true);
             try {
-              // Here you would typically call your API to update order status
+              await updateOrderStatus(order.id, "declined");
               Alert.alert("Order Rejected", "The order has been rejected.");
-              setDetailOrder(null); // Go back to list
+              const updatedOrder = { ...order, status: "declined" as const };
+              setDetailOrder(updatedOrder);
             } catch (error) {
+              console.error("Error rejecting order:", error);
               Alert.alert("Error", "Failed to reject order. Please try again.");
-            } finally {
-              setIsProcessing(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleMarkAsCompleted = async () => {
-    Alert.alert(
-      "Mark as Completed",
-      "Mark this order as completed? This will allow the customer to download their ticket.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Complete",
-          onPress: async () => {
-            setIsProcessing(true);
-            try {
-              // Here you would typically call your API to update order status to "confirmed"
-              Alert.alert("Success", "Order marked as completed!");
-            } catch (error) {
-              Alert.alert(
-                "Error",
-                "Failed to complete order. Please try again."
-              );
             } finally {
               setIsProcessing(false);
             }
@@ -260,6 +235,30 @@ export const OrderDetailSeller = ({
             50% dari Tiket sudah masuk ke rekening kamu dan 50% sisanya akan
             dikirimkan setelah dikonfirmasi buyer maksimal H+1 dari
             berlansungnya acara
+          </Text>
+        </VStack>
+      )}
+
+      {order.status === "received" && (
+        <VStack className="bg-white rounded-xl p-4 shadow-xl" space="md">
+          <Text className="text-base font-bold italic text-[#FEA481] text-center">
+            Tiket telah diterima! Menunggu buyer mengkonfirmasi tiket
+          </Text>
+          <Text className="text-sm text-gray-600 text-center mb-2">
+            Customer telah menerima tiket. Menunggu konfirmasi dari customer
+            bahwa tiket sudah sesuai.
+          </Text>
+
+          <HStack className="justify-center items-center gap-2 py-2">
+            <FontAwesome name="clock-o" size={24} color="#F97316" />
+            <Text className="text-orange-600 font-poppins-semibold">
+              Menunggu Konfirmasi
+            </Text>
+          </HStack>
+
+          <Text className="text-xs text-gray-500 text-center mt-2">
+            Setelah customer mengkonfirmasi, order akan selesai dan payment akan
+            diproses.
           </Text>
         </VStack>
       )}
