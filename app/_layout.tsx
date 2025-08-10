@@ -5,7 +5,7 @@ import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -23,6 +23,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import { AuthProvider } from "@/contexts/AuthContext";
+import SplashUI from "./splash";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -30,15 +31,14 @@ export {
 } from "expo-router";
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "splash",
+  initialRouteName: "(tabs)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
+  const [isAppReady, setAppReady] = useState(false);
+  const [fontsLoaded, fontError] = useFonts({
     // Google Fonts
     Inter_400Regular,
     Inter_500Medium,
@@ -51,23 +51,34 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+    async function prepare() {
+      try {
+        // Wait for fonts to load
+        if (!fontsLoaded && !fontError) {
+          return;
+        }
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        setAppReady(true);
+
+        await SplashScreen.hideAsync();
+      } catch (error) {
+        setAppReady(true);
+        await SplashScreen.hideAsync();
+      }
     }
-  }, [loaded]);
 
-  if (!loaded) {
-    return null;
+    prepare();
+  }, [fontsLoaded, fontError]);
+
+  if (!isAppReady) {
+    return <SplashUI />;
   }
 
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <GluestackUIProvider mode="light">
         <AuthProvider>
           <RootLayoutNav />
@@ -81,7 +92,6 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <Stack>
-        <Stack.Screen name="splash" options={{ headerShown: false }} />
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
         <Stack.Screen name="auth/register" options={{ headerShown: false }} />
         <Stack.Screen

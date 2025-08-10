@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabase";
+import { useRouter, useSegments } from "expo-router";
+import SplashUI from "@/app/splash";
 
 interface AuthContextType {
   session: Session | null;
@@ -22,6 +24,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments();
 
   useEffect(() => {
     // Get initial session
@@ -42,6 +46,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Handle routing based on authentication state
+  useEffect(() => {
+    if (loading) return;
+
+    const inAuthGroup = segments[0] === "auth";
+
+    if (!session && !inAuthGroup) {
+      // User is not authenticated and not in auth screens, redirect to login
+      router.replace("/auth/login");
+    } else if (session && inAuthGroup) {
+      // User is authenticated but still in auth screens, redirect to main app
+      router.replace("/(tabs)");
+    }
+  }, [session, loading, segments]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -91,6 +110,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signOut,
   };
+
+  if (loading) {
+    return <SplashUI />;
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
