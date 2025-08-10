@@ -144,20 +144,6 @@ export const BuyTicketModule = () => {
     try {
       const orderNo = `${new Date().getTime()}`;
 
-      console.log("Creating order with data:", {
-        sellerId: ticket.seller_id,
-        buyerId: user.id,
-        ticketId: ticket.id,
-        no: orderNo,
-        metodePembayaran: formData.metodePembayaran,
-        nama: formData.nama,
-        email: formData.email,
-        nomorHP: formData.nomorHP,
-        nomorKartuIdentitas: formData.nomorKartuIdentitas,
-        price: ticket.price,
-        status: "processing",
-      });
-
       const order = await createOrder({
         sellerId: ticket.seller_id,
         buyerId: user.id,
@@ -171,8 +157,6 @@ export const BuyTicketModule = () => {
         price: ticket.price,
         status: "processing",
       });
-
-      console.log("Order created successfully:", order);
 
       if (!order?.id) {
         throw new Error("Order creation failed - no order ID returned");

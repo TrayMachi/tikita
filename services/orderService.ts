@@ -1,5 +1,34 @@
 import { OrderDB, OrderForm } from "@/types/order";
 import { supabase } from "@/utils/supabase";
+import { TicketDB } from "@/types/ticket";
+
+export const getOrderById = async (
+  id: string
+): Promise<{ order: OrderDB; ticket: TicketDB }> => {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Supabase error getting order:", error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  const ticket = await supabase
+    .from("ticket")
+    .select("*")
+    .eq("id", data?.ticket_id)
+    .single();
+
+  if (ticket.error) {
+    console.error("Supabase error getting ticket:", ticket.error);
+    throw new Error(`Database error: ${ticket.error.message}`);
+  }
+
+  return { order: data, ticket: ticket.data };
+};
 
 export const createOrder = async (order: OrderForm) => {
   try {

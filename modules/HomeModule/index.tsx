@@ -22,7 +22,6 @@ export default function HomeModule() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Get current user
   useEffect(() => {
     const getCurrentUser = async () => {
       const {
@@ -33,12 +32,10 @@ export default function HomeModule() {
     getCurrentUser();
   }, []);
 
-  // Load tickets from database
   const loadTickets = async () => {
     try {
       setIsLoading(true);
 
-      // Load all tickets and premium tickets in parallel
       const [allTicketsData, premiumTicketsData] = await Promise.all([
         getAllTickets(currentUserId || undefined),
         getPremiumTickets(currentUserId || undefined),
@@ -53,30 +50,25 @@ export default function HomeModule() {
     }
   };
 
-  // Initial load
   useEffect(() => {
     if (currentUserId !== null) {
       loadTickets();
     }
   }, [currentUserId]);
 
-  // Handle refresh
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await loadTickets();
     setIsRefreshing(false);
   };
 
-  // Handle search
   const handleSearchChange = async (text: string) => {
     setSearchValue(text);
 
     if (text.trim() === "") {
-      // If search is empty, reload all tickets
       const allTicketsData = await getAllTickets(currentUserId || undefined);
       setTickets(allTicketsData);
     } else {
-      // Search tickets
       try {
         const searchResults = await searchTickets(
           text,
@@ -89,29 +81,22 @@ export default function HomeModule() {
     }
   };
 
-  // Handle category press
   const handleCategoryPress = (category: string) => {
-    // You can implement category filtering here
-    console.log("Category pressed:", category);
-    // For now, just filter the existing tickets by category
     const filtered = tickets.filter(
       (ticket) => ticket.category.toLowerCase() === category.toLowerCase()
     );
     setTickets(filtered);
   };
 
-  // Handle ticket press
   const handleTicketPress = (ticket: TicketDB) => {
     router.push(`/ticket/${ticket.id}`);
   };
 
-  // Handle flash ticket see all
   const handleFlashTicketSeeAll = () => {
     console.log("See all flash tickets");
-    // Implement navigation to flash tickets screen
   };
 
-  // Get featured event (first ticket for now)
+
   const featuredEvent = tickets.length > 0 ? tickets[0] : undefined;
 
   return (

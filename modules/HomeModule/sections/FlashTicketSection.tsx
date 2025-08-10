@@ -47,17 +47,23 @@ export default function FlashTicketSection({
         snapToInterval={200}
         snapToAlignment="start"
       >
-        {tickets.map((ticket, index) => (
-          <View
-            key={ticket.id}
-            className={index < tickets.length - 1 ? "mr-4" : ""}
-          >
-            <TicketCard
-              ticket={ticket}
-              onPress={() => onTicketPress?.(ticket)}
-            />
-          </View>
-        ))}
+        {tickets.map((ticket, index) => {
+          if (ticket.sold) {
+            return null;
+          }
+
+          return (
+            <View
+              key={ticket.id}
+              className={index < tickets.length - 1 ? "mr-4" : ""}
+            >
+              <TicketCard
+                ticket={ticket}
+                onPress={() => onTicketPress?.(ticket)}
+              />
+            </View>
+          );
+        })}
       </ScrollView>
     </View>
   );

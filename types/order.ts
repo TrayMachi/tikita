@@ -1,14 +1,14 @@
 export interface OrderDB {
   id: string;
-  sellerId: string;
-  buyerId: string;
-  ticketId: string;
+  seller_id: string;
+  buyer_id: string;
+  ticket_id: string;
   no: string;
-  metodePembayaran: string;
+  method: string;
   nama: string;
   email: string;
-  nomorHP: string;
-  nomorKartuIdentitas: string;
+  nomor_hp: string;
+  nomor_id: string;
   price: number;
   status: "processing" | "received" | "onBid";
   created_at: string;
