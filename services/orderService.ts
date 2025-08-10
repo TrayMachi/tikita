@@ -1,4 +1,4 @@
-import { OrderDB, OrderForm } from "@/types/order";
+import { OrderDB, OrderForm, OrderWithDetails, GetOrdersOptions } from "@/types/order";
 import { supabase } from "@/utils/supabase";
 import { TicketDB } from "@/types/ticket";
 
@@ -28,6 +28,118 @@ export const getOrderById = async (
   }
 
   return { order: data, ticket: ticket.data };
+};
+
+export const getOrdersByBuyerId = async (
+  userId: string,
+  options: GetOrdersOptions = {}
+): Promise<OrderWithDetails<"seller">[]> => {
+  const {
+    limit = 50,
+    offset = 0,
+    status,
+    sortBy = "created_at",
+    sortOrder = "desc",
+  } = options;
+
+  let query = supabase
+    .from("orders")
+    .select(
+      `
+      *,
+      ticket:ticket_id (
+        id,
+        name,
+        category,
+        city,
+        location,
+        date,
+        time,
+        ticket_type,
+        ticket_url,
+        seat_type,
+        thumbnail,
+        price,
+        is_premium,
+        sold
+      ),
+      seller:seller_id (
+        id,
+        nama
+      )
+    `
+    )
+    .eq("buyer_id", userId)
+    .order(sortBy, { ascending: sortOrder === "asc" })
+    .range(offset, offset + limit - 1);
+
+  if (status && status.length > 0) {
+    query = query.in("status", status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Supabase error getting orders with details:", error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  return data as OrderWithDetails<"seller">[];
+};
+
+export const getOrdersBySellerId = async (
+  sellerId: string,
+  options: GetOrdersOptions = {}
+): Promise<OrderWithDetails<"buyer">[]> => {
+  const { 
+    limit = 50, 
+    offset = 0, 
+    status, 
+    sortBy = 'created_at', 
+    sortOrder = 'desc' 
+  } = options;
+
+  let query = supabase
+    .from("orders")
+    .select(`
+      *,
+      ticket:ticket_id (
+        id,
+        name,
+        category,
+        city,
+        location,
+        date,
+        time,
+        ticket_type,
+        seat_type,
+        ticket_url,
+        thumbnail,
+        price,
+        is_premium,
+        sold
+      ),
+      profiles:buyer_id (
+        id,
+        name
+      )
+    `)
+    .eq("seller_id", sellerId)
+    .order(sortBy, { ascending: sortOrder === 'asc' })
+    .range(offset, offset + limit - 1);
+
+  if (status && status.length > 0) {
+    query = query.in('status', status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Supabase error getting seller orders:", error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  return data as OrderWithDetails<"buyer">[];
 };
 
 export const createOrder = async (order: OrderForm) => {

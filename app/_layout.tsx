@@ -65,6 +65,7 @@ export default function RootLayout() {
 
         await SplashScreen.hideAsync();
       } catch (error) {
+        console.error("error", error)
         setAppReady(true);
         await SplashScreen.hideAsync();
       }

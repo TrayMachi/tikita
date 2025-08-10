@@ -10,6 +10,18 @@ export interface Seller {
   isActive?: boolean;
 }
 
+export interface SellerDB {
+  id: string;
+  created_at: string;
+  userId: string;
+  NIK: string;
+  nama: string;
+  linkKtp: string;
+  linkSelfieKtp: string;
+  isVerified: boolean;
+  isActive: boolean;
+}
+
 export interface SellerFormData {
   NIK: string;
   nama: string;
