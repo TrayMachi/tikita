@@ -37,6 +37,8 @@ export const OrderSaya = () => {
         return "bg-blue-100 text-blue-800";
       case "confirmed":
         return "bg-green-100 text-green-800";
+      case "declined":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -52,6 +54,8 @@ export const OrderSaya = () => {
         return "gavel";
       case "confirmed":
         return "check-circle";
+      case "declined":
+        return "times-circle";
       default:
         return "question-circle";
     }
@@ -62,11 +66,13 @@ export const OrderSaya = () => {
       case "processing":
         return "Processing";
       case "received":
-        return "Received";``
+        return "Received";
       case "confirmed":
         return "Confirmed";
       case "onBid":
         return "On Auction";
+      case "declined":
+        return "Declined";
       default:
         return "Unknown";
     }

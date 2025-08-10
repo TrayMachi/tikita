@@ -1,13 +1,28 @@
 import { HStack } from "@/components/ui/hstack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { cn } from "@/lib/utils";
 import { VStack } from "@/components/ui/vstack";
 import { OrderSaya } from "./OrderSaya";
 import { OrderToko } from "./OrderToko";
+import { useAuth } from "@/contexts/AuthContext";
+import { checkSellerStatus } from "@/services/sellerService";
 
 export default function OrdersContentSection() {
   const [page, setPage] = useState(0);
+  const [role, setRole] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const seller = await checkSellerStatus(user?.id || "");
+      if (seller) {
+        setRole(seller.id);
+      }
+    };
+    fetchRole();
+  }, [user]);
+
   return (
     <View className="flex-1 pt-8">
       <Text className="text-3xl font-poppins-semibold text-white pt-10 pb-5 text-center">
@@ -33,7 +48,8 @@ export default function OrdersContentSection() {
         <Pressable
           className={cn(
             "bg-[#E8E8E8] rounded-full px-4 py-2 w-[150px]",
-            page === 1 && "bg-white"
+            page === 1 && "bg-white",
+            typeof role !== "string" && "hidden"
           )}
           onPress={() => setPage(1)}
         >
@@ -48,7 +64,7 @@ export default function OrdersContentSection() {
         </Pressable>
       </HStack>
       <VStack className="flex-1 bg-white min-h-[85vh] h-full py-10 px-8 mt-5 rounded-t-[45px]">
-        {page === 0 ? <OrderSaya /> : <OrderToko />}
+        {page === 0 ? <OrderSaya /> : <OrderToko sellerId={role || ""} />}
       </VStack>
     </View>
   );

@@ -12,7 +12,7 @@ export interface OrderDB {
   nomor_hp: string;
   nomor_id: string;
   price: number;
-  status: "processing" | "received" | "confirmed" | "onBid";
+  status: "processing" | "received" | "confirmed" | "onBid" | "declined";
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +28,7 @@ export interface OrderForm {
   nomorHP: string;
   nomorKartuIdentitas: string;
   price: number;
-  status: "processing" | "received" | "confirmed" | "onBid";
+  status: "processing" | "received" | "confirmed" | "onBid" | "declined";
 }
 
 export interface OrderWithDetails<T = 'seller'> extends OrderDB {
@@ -37,9 +37,9 @@ export interface OrderWithDetails<T = 'seller'> extends OrderDB {
     id: string;
     nama: string;
   } : never;
-  buyer: T extends 'buyer' ? {
+  profiles: T extends 'buyer' ? {
     id: string;
-    name: string;
+    full_name: string;
   } : never;
 }
 

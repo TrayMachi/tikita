@@ -1,21 +1,50 @@
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
-import { OrderWithDetails } from "@/types/order";
-import { FontAwesome } from "@expo/vector-icons";
+import React from "react";
 import { View, Text } from "react-native";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { OrderWithDetails } from "@/types/order";
 
-export const ProgressTimeline = ({
-  order,
-}: {
-  order: OrderWithDetails<"seller">;
-}) => {
+interface ProgressTimelineProps {
+  order: OrderWithDetails<"seller"> | OrderWithDetails<"buyer">;
+}
+
+export const ProgressTimeline = ({ order }: ProgressTimelineProps) => {
   const getOrderSteps = () => {
+    // Handle declined status separately
+    if (order.status === "declined") {
+      const steps = [
+        {
+          id: 1,
+          title: "Order Placed",
+          description: "Your order has been placed",
+          status: "completed" as const,
+          icon: "shopping-bag" as const,
+        },
+        {
+          id: 2,
+          title: "Payment Confirmed",
+          description: "Payment has been verified",
+          status: "completed" as const,
+          icon: "credit-card-alt" as const,
+        },
+        {
+          id: 3,
+          title: "Seller Confirmation",
+          description: "Order declined by seller",
+          status: "declined" as const,
+          icon: "times-circle" as const,
+        },
+      ];
+      return steps;
+    }
+
     const steps = [
       {
         id: 1,
         title: "Order Placed",
         description: "Your order has been placed",
-        status: "completed",
+        status: "completed" as const,
         icon: "shopping-bag" as const,
       },
       {
@@ -26,20 +55,20 @@ export const ProgressTimeline = ({
           order.status === "processing" ||
           order.status === "received" ||
           order.status === "confirmed"
-            ? "completed"
-            : "pending",
+            ? ("completed" as const)
+            : ("pending" as const),
         icon: "credit-card-alt" as const,
       },
       {
         id: 3,
         title: "Seller Confirmation",
-        description: "Seller has confirmed your order",
+        description: "Waiting for seller confirmation",
         status:
           order.status === "received" || order.status === "confirmed"
-            ? "completed"
+            ? ("completed" as const)
             : order.status === "processing"
-            ? "active"
-            : "pending",
+            ? ("active" as const)
+            : ("pending" as const),
         icon: "check-circle" as const,
       },
       {
@@ -48,15 +77,16 @@ export const ProgressTimeline = ({
         description: "Your ticket is ready for download",
         status:
           order.status === "confirmed"
-            ? "completed"
+            ? ("completed" as const)
             : order.status === "received"
-            ? "active"
-            : "pending",
+            ? ("active" as const)
+            : ("pending" as const),
         icon: "file-text" as const,
       },
     ];
     return steps;
   };
+
   const steps = getOrderSteps();
 
   return (
@@ -92,11 +122,15 @@ export const ProgressTimeline = ({
                   ? "bg-green-500 border-green-500 shadow-green-200"
                   : step.status === "active"
                   ? "bg-primary-500 border-primary-500 shadow-primary-200"
+                  : step.status === "declined"
+                  ? "bg-red-500 border-red-500 shadow-red-200"
                   : "bg-white border-gray-300"
               }`}
             >
               {step.status === "completed" ? (
                 <FontAwesome name="check" size={16} color="white" />
+              ) : step.status === "declined" ? (
+                <FontAwesome name="times" size={16} color="white" />
               ) : (
                 <FontAwesome
                   name={step.icon}
@@ -120,6 +154,8 @@ export const ProgressTimeline = ({
                   ? "text-green-700"
                   : step.status === "active"
                   ? "text-primary-600"
+                  : step.status === "declined"
+                  ? "text-red-700"
                   : "text-gray-400"
               }`}
             >
@@ -129,6 +165,8 @@ export const ProgressTimeline = ({
               className={`font-poppins-regular text-sm ${
                 step.status === "completed" || step.status === "active"
                   ? "text-gray-600"
+                  : step.status === "declined"
+                  ? "text-red-600"
                   : "text-gray-400"
               }`}
             >
@@ -146,6 +184,14 @@ export const ProgressTimeline = ({
               <View className="mt-1">
                 <Text className="text-green-600 text-xs font-poppins-medium">
                   ✓ Completed
+                </Text>
+              </View>
+            )}
+            {step.status === "declined" && (
+              <View className="mt-2 flex-row items-center">
+                <View className="w-2 h-2 bg-red-500 rounded-full mr-2" />
+                <Text className="text-red-500 text-xs font-poppins-medium">
+                  ✗ Declined
                 </Text>
               </View>
             )}

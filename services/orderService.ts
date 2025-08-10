@@ -121,7 +121,7 @@ export const getOrdersBySellerId = async (
       ),
       profiles:buyer_id (
         id,
-        name
+        full_name
       )
     `)
     .eq("seller_id", sellerId)

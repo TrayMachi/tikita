@@ -289,6 +289,30 @@ export const OrderDetail = ({
           </Grid>
         </VStack>
       )}
+      {order.status === "declined" && (
+        <VStack
+          className="bg-white rounded-xl p-4 shadow-xl border border-red-500"
+          space="md"
+        >
+          <Text className="text-base font-bold italic text-red-600 text-center">
+            ❌ Order Declined by Seller
+          </Text>
+          <Text className="text-sm text-gray-600 text-center">
+            Unfortunately, this order has been declined by the seller.
+          </Text>
+
+          <HStack className="justify-center items-center gap-2 py-2">
+            <FontAwesome name="times-circle" size={24} color="#EF4444" />
+            <Text className="text-red-600 font-poppins-semibold">
+              Order Declined
+            </Text>
+          </HStack>
+
+          <Text className="text-xs text-gray-500 text-center mt-2">
+            If you have any questions, please contact customer support.
+          </Text>
+        </VStack>
+      )}
       {order.status === "confirmed" && (
         <VStack
           className="bg-white rounded-xl p-4 shadow-xl border border-primary-500"
