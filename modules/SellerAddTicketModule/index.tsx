@@ -179,7 +179,7 @@ export const SellerAddTicketModule = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: type === "thumbnail" ? [4, 3] : [9, 16],
+        aspect: type === "thumbnail" ? [3, 4] : [9, 16],
         quality: 0.8,
       });
 
