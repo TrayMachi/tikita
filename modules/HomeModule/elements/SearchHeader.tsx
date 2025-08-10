@@ -1,8 +1,14 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Input, InputField } from "@/components/ui/input";
-import { Search, ShoppingCart, Bell, MessageSquareMore } from "lucide-react-native";
+import {
+  Search,
+  ShoppingCart,
+  Bell,
+  MessageSquareMore,
+} from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
+import { router } from "expo-router";
 
 interface SearchHeaderProps {
   onSearchChange?: (text: string) => void;
@@ -52,7 +58,10 @@ export default function SearchHeader({
         </Pressable>
 
         {/* Notification Icon */}
-        <Pressable className="relative p-2 bg-black/30 rounded-full">
+        <Pressable
+          onPress={() => router.push("/chat")}
+          className="relative p-2 bg-black/30 rounded-full"
+        >
           <MessageSquareMore size={24} color="#ffff" />
           {notificationCount > 0 && (
             <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[18px] h-[18px] items-center justify-center">

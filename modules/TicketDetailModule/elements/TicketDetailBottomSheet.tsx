@@ -18,6 +18,7 @@ import React, {
 } from "react";
 import { Pressable, Text, View } from "react-native";
 import SeatingPlan from "./SeatingPlan";
+import { router } from "expo-router";
 
 export interface TicketDetailBottomSheetRef {
   present: (ticket: TicketDB) => void;
@@ -90,7 +91,7 @@ const TicketDetailBottomSheet = forwardRef<
             </View>
 
             <View className="items-end relative">
-              <Button size="sm">
+              <Button onPress={() => router.push(`/penawaran/chat-1`)} size="sm">
                 <ButtonText className="text-white text-xs">
                   Ajukan Penawaran
                 </ButtonText>
