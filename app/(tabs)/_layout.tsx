@@ -18,6 +18,7 @@ import Animated, {
   FadeIn,
   ZoomIn,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
@@ -91,8 +92,13 @@ function AnimatedTabIcon({
 
 // Enhanced tab bar with custom styling
 function CustomTabBar(props: any) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg py-2">
+    <View
+      className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg"
+      style={{ paddingBottom: Math.max(insets.bottom, 8) }}
+    >
       <View className="flex-row justify-around items-center py-2 px-4">
         {props.state.routes.map((route: any, index: number) => {
           const { options } = props.descriptors[route.key];
